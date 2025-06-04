@@ -1,0 +1,130 @@
+.edit-product-container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 35px;
+  background-color: #f8f9fa; /* light grey */
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", sans-serif;
+  animation: slideFade 0.8s ease-in-out;
+}
+
+.edit-product-container h2 {
+  color: #2e7d32; /* dark green */
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.edit-product-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-product-container input,
+.edit-product-container textarea,
+.edit-product-container select {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #a5d6a7; /* soft green border */
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: #e8f5e9; /* light green background */
+  color: #1b5e20; /* dark green text */
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.edit-product-container input::placeholder,
+.edit-product-container textarea::placeholder {
+  color: #66bb6a; /* green placeholder */
+}
+
+.edit-product-container input:focus,
+.edit-product-container textarea:focus,
+.edit-product-container select:focus {
+  outline: none;
+  border-color: #43a047; /* green border on focus */
+  background-color: #ffffff;
+  box-shadow: 0 0 4px rgba(67, 160, 71, 0.4);
+}
+
+.edit-product-container button {
+  padding: 12px 20px;
+  background-color: #2e7d32; /* dark green */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-product-container button:hover {
+  background-color: #1b5e20; /* darker green */
+}
+
+.edit-product-container p {
+  text-align: center;
+  margin-top: 18px;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+/* Popup */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: #ffffff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.popup-box p {
+  margin-bottom: 16px;
+  color: #333333;
+  font-size: 16px;
+}
+
+.popup-box button {
+  background-color: #2e7d32;
+  border: none;
+  padding: 10px 24px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.popup-box button:hover {
+  background-color: #1b5e20;
+}
+
+/* Animation */
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,141 @@
+/* AdminOrder.css */
+
+/* Main container styling */
+.admin-order-container {
+  max-width: 1200px;
+  margin: auto;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+.admin-order-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1b7c14;
+  text-align: center;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Order card styling */
+.admin-order-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  padding: 20px;
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-order-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Left column (order info) styling */
+.admin-order-left {
+  flex: 1;
+  min-width: 300px;
+  margin-right: 20px;
+}
+
+/* Right column (product list) styling */
+.admin-order-right {
+  flex: 1;
+  min-width: 300px;
+  margin-left: 20px;
+}
+
+/* Styling for paragraph elements in both left and right columns */
+.admin-order-left p,
+.admin-order-right p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+/* Icons styling inside paragraphs */
+.admin-order-left p svg,
+.admin-order-right p svg {
+  margin-right: 8px;
+  color: #1b7c14;
+}
+
+/* Shipping address box styling */
+.admin-order-shipping-address {
+  background-color: #eef7f1;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Button styling for the update button */
+.admin-order-update-btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  font-size: 15px;
+  border: none;
+  background-color: #1b7c14;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.admin-order-update-btn:hover {
+  background-color: #136b0f;
+}
+
+/* Styling for product list */
+.admin-order-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Styling for each product info box */
+.admin-order-product-info {
+  display: flex;
+  align-items: flex-start;
+  background-color: #ffffff;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  gap: 15px;
+}
+
+/* Product image styling */
+.admin-order-product-info img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Div inside product info box */
+.admin-order-product-info div {
+  flex: 1;
+}
+
+/* Header styling for product and order details */
+.admin-order-right h3,
+.admin-order-left h3 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #1b7c14;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

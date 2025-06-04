@@ -1,0 +1,131 @@
+/* Centering and background */
+.loginPage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: rgb(27,167,14);
+background: linear-gradient(90deg, rgba(27,167,14,1) 0%, rgba(241,249,243,0.9831582291119573) 49%, rgba(27,167,14,1) 100%);
+  }
+  
+  /* Glassmorphism effect */
+  .loginContainer {
+    background: rgba(1, 49, 26, 0.948);
+    padding: 40px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  /* Title */
+  .loginTitle {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+  }
+  
+  /* Input Fields */
+  .inputGroup {
+    position: relative;
+    margin-bottom: 15px;
+  }
+  
+  .inputGroup input {
+    width: 100%;
+    padding: 12px 40px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .inputGroup input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .inputGroup input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+    border-color: #28a745; /* Green Border on Focus */
+  }
+  
+  .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #28a745; /* Green Icon */
+    font-size: 18px;
+  }
+  
+  /* Login Button */
+  .loginBtn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #28a745; /* Green Button */
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, background 0.3s;
+  }
+  
+  .loginBtn:hover {
+    background: #1e7e34; /* Darker Green on Hover */
+    transform: scale(1.05);
+  }
+  
+  /* Forgot Password */
+  .forgotPassword {
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  
+  .forgotPassword a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .forgotPassword a:hover {
+    text-decoration: underline;
+  }
+  
+  
+  
+  /* Sign-up Link */
+  .signupLink {
+    margin-top: 10px;
+    color: white;
+    font-size: 14px;
+  }
+  
+  .signupLink a {
+    color: #ffd700;
+    text-decoration: none;
+  }
+  
+  .signupLink a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Fade In Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

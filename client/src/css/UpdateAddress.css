@@ -1,0 +1,126 @@
+.update-address-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 128, 0, 0.2);
+    animation: slideUp 0.7s ease-in-out;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #14532d;
+    margin-bottom: 25px;
+  }
+  
+  .update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+  
+  .form-field label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #166534;
+  }
+  
+  .form-field input {
+    padding: 10px 14px;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s ease;
+    background-color: #ecfdf5;
+    color: #065f46;
+  }
+  
+  .form-field input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  }
+  
+  .full-width {
+    grid-column: span 2;
+  }
+  
+  button[type="submit"] {
+   background-color: #2e7d32;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+    width: fit-content;
+    margin: 0 auto;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #1b5e20;
+    transform: scale(1.03);
+  }
+  
+  .error-message {
+    color: #dc2626;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .success-message {
+    color: #16a34a;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  /* Animations */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0.2;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Responsive tweak for very small screens */
+  @media (max-width: 480px) {
+    .full-width {
+      grid-column: span 1;
+    }
+  
+    button[type="submit"] {
+      width: 100%;
+    }
+  }

@@ -1,0 +1,28 @@
+.popup-message {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    z-index: 9999;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    color: white;
+    animation: slideFade 0.5s ease-out;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .popup-message.success {
+    background-color: #28a745;
+  }
+  
+  @keyframes slideFade {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

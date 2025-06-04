@@ -1,0 +1,151 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Apply background only to the Sign-Up page */
+.signUpPage {
+    background: rgb(27,167,14);
+    background: linear-gradient(90deg, rgba(27,167,14,1) 0%, rgba(241,249,243,0.9831582291119573) 49%, rgba(27,167,14,1) 100%); /* Green Gradient */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Container */
+.signUpContainer {
+    background: rgba(1, 49, 26, 0.948); /* Glass effect */
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Title */
+.signupTitle {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* Input Groups */
+.inputGroup {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #28a745; /* Green Icon */
+    font-size: 18px;
+}
+
+/* Input Styling */
+.inputGroup input {
+    width: 100%;
+    padding: 12px 40px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s ease-in-out;
+}
+
+.inputGroup input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.inputGroup input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+    border-color: #28a745; /* Green Border on Focus */
+}
+
+/* Sign-Up Button */
+.signupBtn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #28a745; /* Green Button */
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, background 0.3s;
+}
+
+.signupBtn:hover {
+    background: #1e7e34; /* Darker Green on Hover */
+    transform: scale(1.05);
+}
+
+/* Login Link */
+.loginLink {
+    margin-top: 15px;
+    color: white;
+    font-size: 14px;
+}
+
+.loginLink a {
+    color: yellow;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.loginLink a:hover {
+    text-decoration: underline;
+}
+.googleBtn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background: #ffffff;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .googleIcon {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+  
+  .googleBtn:hover {
+    background: #f1f1f1;
+    transform: scale(1.05);
+  }
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

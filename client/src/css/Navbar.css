@@ -1,0 +1,188 @@
+
+.custom-navbar {
+  background: #13181e;
+  padding: 10px 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.custom-navbar-brand {
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.custom-navbar-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 20%;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.custom-navbar-text {
+  font-size: 1.2rem;
+  margin-left: 15px;
+  color: #333;
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+
+.custom-navbar-brand:hover {
+  transform: scale(1.05);
+}
+
+.custom-navbar-brand:hover .custom-navbar-logo {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 128, 0, 0.5);
+  border-radius: 50%;
+}
+
+.custom-navbar-brand:hover .custom-navbar-text {
+  color: green;
+  transform: scale(1.1);
+}
+
+
+.custom-nav-btn {
+  color: #1B4D3E;
+  background-color: white;
+  
+  padding: 8px 15px;
+  margin: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effect for buttons */
+.custom-nav-btn:hover {
+  background-color: gray;
+  color: white;
+  border-color: gray;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(128, 128, 128, 0.5);
+}
+
+/* Green color transition effect */
+.custom-nav-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(27, 77, 62, 0.2);
+  transition: left 0.4s ease-in-out;
+}
+
+.custom-nav-btn:hover::before {
+  left: 0;
+}
+
+/* Special styling for Sign Up button */
+.custom-nav-btn-special {
+  background-color: #28A745;
+  color: white;
+  border: 2px solid #28A745;
+  padding: 8px 20px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-nav-btn-special:hover {
+  background-color: gray;
+  color: white;
+  transform: scale(1.1);
+  border-color: gray;
+}
+
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .custom-navbar-logo {
+      width: 80px;
+      height: 80px;
+  }
+
+  .custom-navbar-text {
+      font-size: 1rem;
+  }
+
+  .custom-nav-btn {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+  }
+
+  .custom-nav-btn-special {
+      padding: 6px 15px;
+      font-size: 0.9rem;
+  }
+}
+
+
+/* User icon dropdown styling */
+.user-dropdown {
+  position: relative;
+}
+
+.user-icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.user-dropdown-menu .dropdown-item {
+  padding: 10px 15px;
+  color: #333;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-dropdown-menu .dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+.more-dropdown-menu,
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  z-index: 999;
+  padding: 10px;
+  min-width: 160px;
+}
+
+.more-dropdown-menu .dropdown-item,
+.user-dropdown-menu .dropdown-item {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.2s ease;
+}
+
+.more-dropdown-menu .dropdown-item:hover,
+.user-dropdown-menu .dropdown-item:hover {
+  background: #f0f0f0;
+  color: #000;
+}

@@ -1,0 +1,39 @@
+/* --- Hero Section --- */
+.hero a.btn {
+  transition: all 0.3s ease-in-out;
+}
+
+.hero a.btn:hover {
+  background-color: #145a32; /* Darker green on hover */
+  color: white;
+  transform: scale(1.05);
+}
+
+/* --- Card Hover Effect --- */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Carousel Controls --- */
+.carousel-control-prev-icon, .carousel-control-next-icon {
+  transition: filter 0.3s ease-in-out;
+}
+
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+  filter: brightness(0.7);
+}
+
+
+.list-group-item {
+  transition: background-color 0.3s ease;
+}
+
+.list-group-item:hover {
+  background-color: #eafaf1; 
+}

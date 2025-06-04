@@ -1,0 +1,30 @@
+.verify-otp-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+  }
+  
+  .verify-otp-title {
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .verify-otp-input {
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #28a745;
+  }
+  
+  .verify-otp-btn {
+    background-color: #28a745;
+    border-color: #28a745;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 10px;
+    color: white;
+  }
+  
+  .verify-otp-btn:hover {
+    background-color: #218838;
+    border-color: #218838;
+  }

@@ -1,0 +1,144 @@
+/* Container for the product list */
+.product-list-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background: linear-gradient(145deg, #e9f7ef, #ffffff);
+    border-radius: 12px;
+    animation: fadeIn 1s ease-in;
+  }
+  
+  /* Header styling */
+  .product-list-header {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #1ba70e;
+    margin-bottom: 20px;
+    text-align: center;
+    animation: slideDown 0.6s ease-in-out;
+  }
+  
+  /* Error message */
+  .product-list-error {
+    font-size: 1rem;
+    color: #f44336;
+    text-align: center;
+  }
+  
+  /* Product Grid */
+  .product-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+  }
+  
+  /* Product Card */
+  .product-list-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(27, 167, 14, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.5s ease;
+  }
+  
+  /* Hover effect for product cards */
+  .product-list-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(27, 167, 14, 0.3);
+  }
+  
+  /* Thumbnail Image */
+  .product-list-thumbnail {
+    width: 100%;
+    height: 100px; /* fixed height for uniformity */
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  
+  /* Product Details */
+  .product-list-card-title {
+    font-size: 1.4rem;
+    color: #1ba70e;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .product-list-card-text {
+    font-size: 1rem;
+    color: #444;
+    margin: 5px 0;
+  }
+  
+  /* Buttons */
+  .product-list-button {
+    background-color: #1ba70e;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin: 5px 0;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  /* Button Hover Effects */
+  .product-list-button:hover {
+    background-color: #148d0b;
+    transform: scale(1.03);
+  }
+  
+  /* Image gallery inside product card */
+  .product-list-image-gallery {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  
+  .product-list-product-image {
+    width: 30%;
+    height: 100px; /* uniform height */
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-15px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
