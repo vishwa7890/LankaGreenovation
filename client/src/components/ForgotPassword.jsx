@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../css/UserRegister.css"; 
+import "../css/UserRegister.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "./Navbar";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -16,10 +18,12 @@ const ForgotPassword = () => {
       const res = await axios.post("http://localhost:5000/user/forgot-password", {
         email,
       });
-      alert(res.data.message);
+      toast.success(res.data.message || "OTP sent successfully!");
       navigate("/verify-otp", { state: { email } });
     } catch (error) {
-      alert("Failed to send OTP. Please try again.");
+      toast.error(
+        error.response?.data?.message || "Failed to send OTP. Please try again."
+      );
     }
   };
 

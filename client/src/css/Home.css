@@ -4,7 +4,7 @@
 }
 
 .hero a.btn:hover {
-  background-color: #145a32; /* Darker green on hover */
+  background-color: #ffffff; /* Darker green on hover */
   color: white;
   transform: scale(1.05);
 }

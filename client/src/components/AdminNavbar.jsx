@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; // ✅ Import axios
 import "../css/AdminNavbar.css";
+import { toast } from "react-toastify";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -17,13 +18,13 @@ const AdminNavbar = () => {
         { withCredentials: true } // To send cookies if auth uses them
       );
 
-      console.log("Logout Success:", response.data.message || "Logged out");
+      toast.success("Logout Success:", response.data.message || "Logged out");
 
       // Redirect to login page
       navigate("/admin/login");
     } catch (err) {
       console.error("Logout Failed:", err.response?.data?.message || err.message);
-      alert("Failed to logout. Please try again.");
+     toast.error("Failed to logout. Please try again.");
     }
   };
 

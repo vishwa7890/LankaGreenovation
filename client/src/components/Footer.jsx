@@ -20,7 +20,7 @@ const Footer = () => {
             </p>
             <div className="lg-footer-links">
               <a href="/AboutUs" className="lg-footer-link">About Us</a> |
-              <a href="/services" className="lg-footer-link"> Services</a> |
+              <a href="/user/productlist" className="lg-footer-link"> Products</a> |
               <a href="/ContactUs" className="lg-footer-link"> Contact</a>
             </div>
           </div>
@@ -45,10 +45,11 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright Section */}
+       {/* Copyright Section */}
         <div className="lg-footer-copyright">
-          <p>&copy; 2025 Lanka Greenovation. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Lanka Greenovation. All rights reserved.</p>
         </div>
+
       </div>
     </footer>
   );

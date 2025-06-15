@@ -70,10 +70,11 @@
 .contact-info p {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     color: #333333;
     font-weight: bold;
     margin-bottom: 10px;
+    padding-left: 40px;
 }
 
 .contact-info .icon {

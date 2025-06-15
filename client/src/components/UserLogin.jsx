@@ -6,40 +6,37 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../components/Navbar";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState({ text: "", type: "" });
   const navigate = useNavigate();
 
- const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  if (!email || !password) {
-    setMessage({ text: "Email and password are required!", type: "error" });
-    return;
-  }
+    if (!email || !password) {
+      toast.error("Email and password are required!");
+      return;
+    }
 
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/user/login",
-      { email, password },
-      { withCredentials: true }
-    );
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/user/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-    setMessage({ text: res.data.message, type: "success" });
-    navigate('/');
-    setTimeout(() => window.location.reload(), 1500);
-  } catch (err) {
-    console.error("Login Error:", err.response);
-    setMessage({
-      text: err.response?.data?.message || "Login failed. Try again.",
-      type: "error"
-    });
-  }
-};
-
+      toast.success(res.data.message || "Login successful!");
+      navigate('/');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      console.error("Login Error:", err.response);
+      toast.error(err.response?.data?.message || "Login failed. Try again.");
+    }
+  };
 
   return (
     <div>
@@ -80,11 +77,6 @@ const UserLogin = () => {
               Don't have an account? <a href="/user/register">Sign Up</a>
             </p>
           </form>
-          {message.text && (
-            <p style={{ color: message.type === "success" ? "green" : "red" }}>
-              {message.text}
-            </p>
-          )}
         </div>
       </div>
     </div>

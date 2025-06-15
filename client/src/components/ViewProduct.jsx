@@ -53,7 +53,7 @@ const ViewProduct = () => {
       toast.success("Product added successfully!");
       console.log(response.data.message);
     } catch (err) {
-      alert(`Error adding product: ${err.response?.data?.message || err.message}`);
+      toast.error(`Error adding product: ${err.response?.data?.message || err.message}`);
       console.error("Error adding to cart:", err);
     }
   };
@@ -71,10 +71,10 @@ const ViewProduct = () => {
       setNewComment("");
       setNewRating(5);
       setCommentError("");
-      alert("Comment added successfully!");
+      toast.success("Comment added successfully!");
     } catch (err) {
       const message = err.response?.data?.message || "Error adding comment";
-      setCommentError(message);
+      toast.error(message);
     }
   };
 
@@ -271,43 +271,62 @@ const ViewProduct = () => {
         )}
       </div>
       <div className="comment-section">
-        <h2>Comments</h2>
+  <h2 className="comment-title">Customer Reviews</h2>
 
-        <form onSubmit={handleAddComment} className="comment-form">
-          <textarea
-            placeholder="Write your comment here..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            required
-          />
-          <div>
-            <label>Rating:</label>
-            <select value={newRating} onChange={(e) => setNewRating(e.target.value)}>
-              {[1, 2, 3, 4, 5].map((r) => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </div>
-          <button type="submit">Add Comment</button>
-        </form>
-
-        {commentError && <p style={{ color: "red" }}>{commentError}</p>}
-
-        <div className="comment-list">
-          {comments.length === 0 ? (
-            <p>No comments yet.</p>
-          ) : (
-            comments.map((comment) => (
-              <div key={comment._id} className="comment-item">
-                <p><strong>{comment.user?.username || "User"}:</strong> {comment.text}</p>
-                <p>Rating: {comment.rating} ⭐</p>
-                <p><small>{new Date(comment.createdAt).toLocaleString()}</small></p>
-              </div>
-            ))
-          )}
-        </div>
+  <form onSubmit={handleAddComment} className="comment-form">
+    <textarea
+      className="comment-textarea"
+      placeholder="Write your review here..."
+      value={newComment}
+      onChange={(e) => setNewComment(e.target.value)}
+      required
+    />
+    <div className="rating-stars-wrapper">
+  <label className="rating-label">Your Rating:</label>
+      <div className="star-rating">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            className={`star ${newRating >= star ? "filled" : ""}`}
+            onClick={() => setNewRating(star)}
+          >
+            ★
+          </span>
+        ))}
       </div>
     </div>
+
+    <button type="submit" className="submit-comment-btn">
+      Submit Review
+    </button>
+    {commentError && <p className="comment-error">{commentError}</p>}
+  </form>
+
+  <div className="comment-list">
+    {comments.length === 0 ? (
+      <p className="no-comments">No reviews yet. Be the first to review!</p>
+    ) : (
+      comments.map((comment) => (
+        <div key={comment._id} className="comment-card">
+          <div className="comment-header">
+            <strong>{comment.user?.username || "Anonymous"}</strong>
+            <span className="comment-date">
+              {new Date(comment.createdAt).toLocaleString()}
+            </span>
+          </div>
+          <div className="comment-body">
+            <div className="comment-rating">
+              {"⭐".repeat(comment.rating)}{" "}
+            </div>
+           
+            
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
+</div>
   );
 };
 

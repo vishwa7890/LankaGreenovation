@@ -332,12 +332,63 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
         .join("\n");
 
       const userMailOptions = {
-        from: process.env.EMAIL,
-        to: user.email,
-        subject: 'Your Order Has Been Cancelled',
-        text: `Dear ${user.name},\n\nYour order has been cancelled.\n\nOrder ID: ${updatedOrder._id}\nProducts:\n${productDetails}\nTotal Price: ₹${updatedOrder.totalPrice}\n\nWe’re sorry for the inconvenience.\n\nThank you.`,
-      };
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: 'Your Order Has Been Cancelled',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Order Cancelled</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header with logo and function name -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
+            </td>
+          </tr>
+        </table>
 
+        <!-- Title -->
+        <h2 style="text-align: center; color: #333;">Your Order Has Been Cancelled</h2>
+
+        <!-- Message -->
+        <p style="text-align: center; color: #555;">Dear <strong>${user.name}</strong>,</p>
+        <p style="text-align: center; color: #555;">
+          Your order has been cancelled. Below are the order details:
+        </p>
+
+        <!-- Order Info -->
+        <div style="margin: 20px 0; color: #333; font-size: 16px;">
+          <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
+          <p><strong>Products:</strong></p>
+          <pre style="background-color: #f0f0f0; padding: 10px; border-radius: 6px; white-space: pre-wrap;">${productDetails}</pre>
+          <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
+        </div>
+
+        <!-- Apology -->
+        <p style="text-align: center; color: #777;">
+          We’re sorry for the inconvenience.
+        </p>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          For any questions, contact us at <strong>support@lankagreenovation.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
       transporter.sendMail(userMailOptions, (err) => {
         if (err) console.error("Failed to send cancellation email to user:", err);
       });

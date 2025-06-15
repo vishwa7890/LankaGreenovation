@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-
+const logoUrl = 'https://i.ibb.co/cXx9GgZz/Logo.jpg';
 
 router.post('/register', async (req, res) => {
   const { username, phone, email } = req.body;
@@ -46,31 +46,62 @@ router.post('/register', async (req, res) => {
   from: process.env.EMAIL,
   to: email,
   subject: 'Your OTP Code',
+  text: `Hello ${username}, your OTP is ${otp}. It is valid for 10 minutes.`,
   html: `
-    <div style="font-family: Arial, sans-serif; background-color:rgb(255, 255, 255); padding: 30px;">
-  <div style="max-width: 600px; margin: auto; background-color: #fff; border-radius: 8px; overflow: hidden;">
-    <div style="background-color: #a5d6a7; padding: 20px; display: flex; align-items: center;">
-      <img src="https://yourcompany.com/logo.png" alt="Company Logo" style="width: 60px; height: auto; margin-right: 15px;">
-      <h2 style="margin: 0; color: #1b5e20;">Your Company Name</h2>
-    </div>
-    <div style="padding: 30px; text-align: center;">
-      <p style="font-size: 16px; color: #333;">Hello, ${username}</p>
-      <p style="font-size: 16px; color: #333;">Your One-Time Password (OTP) is:</p>
-      <p style="font-size: 28px; font-weight: bold; color: #1b5e20; margin: 20px 0;">${otp}</p>
-      <p style="font-size: 16px; color: #555;">This code is valid for 10 minutes.</p>
-      <p style="font-size: 16px; color: #555;">If you didn’t request this code, please ignore this email.</p>
-    </div>
-    <div style="background-color: #c8e6c9; padding: 15px; text-align: center; font-size: 14px; color: #2e7d32;">
-      © ${new Date().getFullYear()} Lanka Greenovation. All rights reserved.
-    </div>
-  </div>
-</div>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTP Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    
+    <!-- Logo + Company Name in Table (Side by Side) -->
+    <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+      <tr>
+        <td style="width: 100px; padding-right: 10px;">
+          <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
+        </td>
+        <td style="vertical-align: middle;">
+          <div style="font-size: 22px; font-weight: bold; color: #4CAF50;">Lanka Greenovation</div>
+        </td>
+      </tr>
+    </table>
 
+    <!-- Title -->
+    <h2 style="text-align: center; color: #333;">Verify Your Login</h2>
+
+    <!-- Greeting -->
+    <p style="text-align: center; color: #555;">Hello <strong>${username}</strong>,</p>
+    <p style="text-align: center; color: #555;">
+      To keep your account secure, use the One-Time Password (OTP) below:
+    </p>
+
+    <!-- OTP Code -->
+    <div style="font-size: 28px; font-weight: bold; color: #4CAF50; text-align: center; margin: 20px 0;">
+      ${otp}
+    </div>
+
+    <!-- OTP Validity -->
+    <p style="text-align: center; color: #555;">
+      This code is valid for the next <strong>10 minutes</strong>. Do not share your OTP with anyone.
+    </p>
+
+    <!-- Footer -->
+    <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+      If you didn’t request this code, please ignore this email.
+    </p>
+    <p style="font-size: 12px; color: #888; text-align: center;">
+      For assistance, contact us at <strong><a href="mailto:support@lankagreenovation.com" style="color: #4CAF50;">support@lankagreenovation.com</a></strong>.
+    </p>
+
+  </div>
+</body>
+</html>
   `
 };
-
-
-
   transporter.sendMail(mailOptions, (err) => {
     if (err) {
       console.log(err);
@@ -80,6 +111,83 @@ router.post('/register', async (req, res) => {
     res.json({ message: "OTP sent to email" });
   });
 });
+router.post('/resend-otp', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // 1. Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 2. Generate new OTP & update expiry
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 min
+
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    // 3. Resend email (reuse same template)
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Your New OTP Code',
+      text: `Hello ${user.username}, your new OTP is ${otp}. It is valid for 10 minutes.`,
+      html: `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>OTP Verification</title>
+            </head>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+              <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+                  <tr>
+                    <td style="width: 100px; padding-right: 10px;">
+                      <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div style="font-size: 22px; font-weight: bold; color: #4CAF50;">Lanka Greenovation</div>
+                    </td>
+                  </tr>
+                </table>
+                <h2 style="text-align: center; color: #333;">Resend OTP</h2>
+                <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
+                <p style="text-align: center; color: #555;">Here is your new One-Time Password (OTP):</p>
+                <div style="font-size: 28px; font-weight: bold; color: #4CAF50; text-align: center; margin: 20px 0;">
+                  ${otp}
+                </div>
+                <p style="text-align: center; color: #555;">This code is valid for the next <strong>10 minutes</strong>. Do not share your OTP with anyone.</p>
+                <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+                  If you didn’t request this code, please ignore this email.
+                </p>
+                <p style="font-size: 12px; color: #888; text-align: center;">
+                  For assistance, contact us at <strong><a href="mailto:support@lankagreenovation.com" style="color: #4CAF50;">support@lankagreenovation.com</a></strong>.
+                </p>
+              </div>
+            </body>
+            </html>`
+    };
+
+    transporter.sendMail(mailOptions, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Failed to send OTP email" });
+      }
+
+      return res.json({ message: "New OTP sent to your email" });
+    });
+
+  } catch (error) {
+    console.error("Error resending OTP:", error);
+    res.status(500).json({ message: "Server error while resending OTP" });
+  }
+});
+
 
 
 router.post('/verify-otp', async (req, res) => {
@@ -124,8 +232,58 @@ router.post('/set-password', async (req, res) => {
       from: process.env.EMAIL,
       to: email,
       subject: isUpdate ? 'Your Password Was Updated' : 'Your Account Was Created Successfully',
-      text: `Hello ${user.username || "User"},\n\nYour password has been ${isUpdate ? 'updated' : 'set successfully'}. You can now log in using your email and password.\n\nThank you!`,
-    };
+      html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${isUpdate ? 'Password Updated' : 'Account Created'}</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+      
+       <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Title -->
+        <h2 style="text-align: center; color: #333;">${isUpdate ? 'Your Password Was Successfully Updated' : 'Welcome to Lanka Greenovation'}</h2>
+
+        <!-- Greeting and Message -->
+        <p style="text-align: center; color: #555;">Hello <strong>${user.username || "User"}</strong>,</p>
+        <p style="text-align: center; color: #555;">
+          Your password has been <strong>${isUpdate ? 'updated' : 'set successfully'}</strong>.
+          You can now log in using your registered email and password.
+        </p>
+
+        <!-- Button -->
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="your-login-page-url" style="display: inline-block; padding: 12px 24px; font-size: 16px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px;">
+            ${isUpdate ? 'Log In Now' : 'Get Started'}
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          If you did not perform this action, please contact our support team immediately.
+        </p>
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          For assistance, contact us at <strong>support@lankagreenovation.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+
 
     transporter.sendMail(mailOptions, (err) => {
       if (err) {
@@ -514,11 +672,6 @@ router.delete('/delete-address/:id', verifyUser, async (req, res) => {
   }
 });
 
-
-
-
-
-
 const razorpay = new Razorpay({
   key_id: process.env.KEY_ID,
   key_secret: process.env.KEY_SECRET
@@ -558,8 +711,6 @@ router.post("/place-order", verifyUser, async (req, res) => {
     });
 
     await newOrder.save();
-
-    
     if (paymentMethod === "Online") {
       const razorpayOrder = await razorpay.orders.create({
         amount: totalPrice * 100,
@@ -582,18 +733,154 @@ router.post("/place-order", verifyUser, async (req, res) => {
     const productDetails = products.map(p => `- ${p.productId?.name} (x${p.quantity})`).join("\n");
 
     const mailOptions = {
-      from: process.env.EMAIL,
-      to: user.email,
-      subject: 'Your Order Placed Successfully',
-      text: `Dear ${user.name},\n\nYour order has been placed successfully!\n\nOrder ID: ${newOrder._id}\nTotal Price: ₹${totalPrice}\nPayment Method: ${paymentMethod}\n\nProducts:\n${productDetails}\n\nThank you for shopping with us!`
-    };
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: 'Your Order Placed Successfully',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Order Placed</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
 
-    const mailOptions2 = {
-      from: process.env.EMAIL,
-      to: "aathi22004@gmail.com",
-      subject: 'Your User Placed Order',
-      text: `Your user ${user.username},\n\nPlaced an order successfully!\n\nOrder ID: ${newOrder._id}\nTotal Price: ₹${totalPrice}\nPayment Method: ${paymentMethod}\n\nProducts:\n${productDetails}`
-    };
+        <!-- Logo and Function Name in Table -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Title -->
+        <h2 style="text-align: center; color: #333;">Order Confirmation</h2>
+
+        <!-- Greeting -->
+        <p style="text-align: center; color: #555;">Hello <strong>${user.name}</strong>,</p>
+        <p style="text-align: center; color: #555;">
+          Your order has been successfully placed. Here are your order details:
+        </p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Thank You -->
+        <p style="text-align: center; color: #555; margin-top: 30px;">
+          Thank you for shopping with us!
+        </p>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          For any help, contact us at <strong>support@lankagreenovation.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+
+
+  const mailOptions2 = {
+  from: process.env.EMAIL,
+  to: "aathi22004@gmail.com",
+  subject: 'Your User Placed Order',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>User Order Alert</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Logo and Function Name in Table -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Admin Alert -->
+        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
+        <p style="text-align: center; color: #555;">
+          Your user <strong>${user.username}</strong> has placed a new order.
+        </p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          This is an automated notification. No action is required.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+
 
     transporter.sendMail(mailOptions);
     transporter.sendMail(mailOptions2);
@@ -632,18 +919,146 @@ router.post("/verify-payment", async (req, res) => {
     const productDetails = order.products.map(p => `- ${p.productId?.name} (x${p.quantity})`).join("\n");
 
     const mailOptions = {
-      from: process.env.EMAIL,
-      to: user.email,
-      subject: 'Payment Successful – Order Confirmed!',
-      text: `Dear ${user.name},\n\nYour payment was successful.\n\nOrder ID: ${order._id}\nTotal Price: ₹${order.totalPrice}\nPayment Method: ${order.paymentMethod}\n\nProducts:\n${productDetails}\n\nThank you for shopping with us!`
-    };
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: 'Payment Successful – Order Confirmed!',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Payment Confirmation</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
 
-    const adminMailOptions = {
-      from: process.env.EMAIL,
-      to: "aathi22004@gmail.com",
-      subject: 'New Paid Order Received',
-      text: `User: ${user.username}\nOrder ID: ${order._id}\nTotal Price: ₹${order.totalPrice}\nPayment Method: ${order.paymentMethod}\n\nProducts:\n${productDetails}`
-    };
+        <!-- Header with logo and function name -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Payment Confirmation</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Greeting & Confirmation -->
+        <h2 style="text-align: center; color: #333;">Payment Successful!</h2>
+        <p style="text-align: center; color: #555;">Dear <strong>${user.name}</strong>,</p>
+        <p style="text-align: center; color: #555;">We’ve received your payment and your order has been confirmed.</p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${order._id}</p>
+          <p><strong>Total Price:</strong> ₹${order.totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          Thank you for shopping with us!  
+        </p>
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          For help, contact <strong>support@lankagreenovation.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+    const mailOptions2 = {
+  from: process.env.EMAIL,
+  to: "aathi22004@gmail.com",
+  subject: 'Your User Placed Order',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>User Order Alert</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Logo and Function Name in Table -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Admin Alert -->
+        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
+        <p style="text-align: center; color: #555;">
+          Your user <strong>${user.username}</strong> has placed a new order.
+        </p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          This is an automated notification. No action is required.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+
 
     transporter.sendMail(mailOptions);
     transporter.sendMail(adminMailOptions);
@@ -674,12 +1089,57 @@ router.post('/forgot-password', async (req, res) => {
     await user.save();
 
     const mailOptions = {
-      from: process.env.EMAIL,
-      to: email,
-      subject: 'Your OTP Code',
-      text: `Your OTP code is ${otp}. It is valid for 10 minutes.`,
-    };
+  from: process.env.EMAIL,
+  to: email,
+  subject: 'Your OTP Code',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>OTP Verification</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
 
+        <!-- Header with logo and title -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Verify OTP</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Title -->
+        <h2 style="text-align: center; color: #333;">Your One-Time Password</h2>
+        <p style="text-align: center; color: #555;">Please use the OTP below to proceed:</p>
+
+        <!-- OTP Code -->
+        <div style="font-size: 28px; font-weight: bold; color: #4CAF50; text-align: center; margin: 20px 0;">
+          ${otp}
+        </div>
+
+        <!-- Expiry Note -->
+        <p style="text-align: center; color: #555;">This code is valid for <strong>10 minutes</strong>.</p>
+        <p style="text-align: center; color: #888; font-size: 12px;">Do not share this OTP with anyone.</p>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          If you didn’t request this OTP, you can safely ignore this message.
+        </p>
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          Need help? Contact <strong>support@lankagreenovation.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
     transporter.sendMail(mailOptions, (err) => {
       if (err) {
         console.error(err);
@@ -781,19 +1241,4 @@ router.get('/products/:id/comments', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports=router;

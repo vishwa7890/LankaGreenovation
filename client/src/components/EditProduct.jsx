@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../css/EditProduct.css";
 
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [product, setProduct] = useState({
     name: "",
     brand: "",
@@ -14,23 +17,33 @@ const EditProduct = () => {
     detailedDescription: "",
     stockStatus: "",
   });
-  const [message, setMessage] = useState("");
-  const [popupMessage, setPopupMessage] = useState(""); // Popup message state
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/admin/get-product/${id}`, {
-        withCredentials: true,
-      })
-      .then((res) => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/admin/get-product/${id}`,
+          { withCredentials: true }
+        );
+
         if (res.data && res.data.product) {
           setProduct(res.data.product);
         } else {
-          console.error("Invalid response structure:", res.data);
+          toast.error("Product data not found.");
         }
-      })
-      .catch((err) => console.error("Error fetching product:", err));
-  }, [id]);
+      } catch (err) {
+        if (err.response && err.response.status === 401) {
+          toast.error("Unauthorized. Please login as admin.");
+          navigate("/admin/login");
+        } else {
+          console.error("Error fetching product:", err);
+          toast.error("Error fetching product.");
+        }
+      }
+    };
+
+    fetchProduct();
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
@@ -46,21 +59,27 @@ const EditProduct = () => {
         { withCredentials: true }
       );
 
-      setPopupMessage(res.data.message); // Set success message
+      toast.success(res.data.message || "Product updated successfully!");
       setTimeout(() => navigate("/productlist"), 2000);
     } catch (err) {
-      setPopupMessage(err.response?.data?.message || "Error updating product");
+      if (err.response && err.response.status === 401) {
+        toast.error("Unauthorized. Please login as admin.");
+        navigate("/admin/login");
+      } else {
+        console.error("Error updating product:", err);
+        toast.error(err.response?.data?.message || "Error updating product.");
+      }
     }
   };
 
   return (
     <div
-    style={{
-      minHeight: "100vh",
-      background: "linear-gradient(to right, #f2f2f2, #e6e6e6)",
-      padding: "30px",
-    }}
-  >
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(to right, #f2f2f2, #e6e6e6)",
+        padding: "30px",
+      }}
+    >
       <div className="edit-product-container">
         <h2>Edit Product</h2>
         <form onSubmit={handleSubmit}>
@@ -114,16 +133,6 @@ const EditProduct = () => {
           </select>
           <button type="submit">Update Product</button>
         </form>
-
-        {/* Popup Modal */}
-        {popupMessage && (
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <p>{popupMessage}</p>
-              <button onClick={() => setPopupMessage("")}>OK</button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ const Home = () => {
         <div className="position-absolute top-50 start-50 translate-middle text-center" data-aos="fade-up">
           <h1 className="display-4 fw-bold">Lanka Greenovation</h1>
           <p className="lead">Innovating Sustainability with Biotech Solutions</p>
-          <a href="#about" className="btn btn-light text-dark mt-3">Learn More</a>
+          <a href="/AboutUs" className="btn btn-light text-dark mt-3">Learn More</a>
         </div>
       </section>
 
@@ -54,7 +54,7 @@ const Home = () => {
       <section id="about" className="container py-5 bg-light rounded">
         <div className="text-center mb-4">
           <h2 className="fw-bold text-success" data-aos="fade-right">About Us</h2>
-          <p>
+          <p style={{ textAlign: "justify" }}>
             Founded by visionary entrepreneur <b>Mrs. R. Ananthi</b> and co-founded by <b>Dr. S. Karthikumar</b>, we specialize in high-quality
             <b> cosmetic bioproducts, algal bioproducts, fish feed, liquid biofertilizers, and solid biofertilizers</b>.
           </p>
@@ -62,10 +62,10 @@ const Home = () => {
 
         <div className="row align-items-center">
           <div className="col-md-6" data-aos="fade-up">
-            <img src="/bio.jfif" alt="About Us" className="img-fluid rounded-3 shadow-lg w-100" style={{ maxHeight: "300px", objectFit: "cover" }} />
+            <img src="/hom.png" alt="About Us" className="img-fluid rounded-3 shadow-lg w-100" style={{ maxHeight: "300px", objectFit: "cover" }} />
           </div>
           <div className="col-md-6 d-flex flex-column align-items-start" data-aos="fade-left">
-            <p className="text-muted">
+            <p className="text-muted" style={{ textAlign: "justify" }}>
               Lanka Greenovation is a pioneering biotech company dedicated to developing sustainable bioproducts for a greener future.
               We focus on eco-friendly innovations that enhance agricultural productivity, promote environmental conservation, and support the circular economy.
             </p>
@@ -77,12 +77,12 @@ const Home = () => {
       {/* Our Products Section */}
       <section className="py-5 text-white" style={{ backgroundColor: "#2C3E50" }}>
         <div className="container text-center">
-          <h2 className="fw-bold" data-aos="zoom-in">Our Products</h2>
+          <h2 className="fw-bold text-white" data-aos="zoom-in">Our Products</h2>
           <div className="row mt-4">
             {[
-              { img: "/images/food-analyzer.jpg", title: "Biofertilizers", desc: "Biofertilizers enhance soil fertility naturally by promoting microbial activity and nutrient absorption." },
-              { img: "/images/cosmetic.jpg", title: "Cosmetic Bioproducts", desc: "Natural skincare solutions with herbal face masks and organic sunscreens." },
-              { img: "/images/fish-feed.jpg", title: "Ornamental Fish Feed", desc: "Sustainable, high-protein fish feed enriched with essential nutrients." }
+              { img: "/bio_fertilizer.png", title: "Biofertilizers", desc: "Biofertilizers boost soil fertility by enhancing microbes and nutrient uptake." },
+              { img: "/cosmetic_bioproducts.png", title: "Cosmetic Bioproducts", desc: "Natural skincare solutions with herbal face masks and organic sunscreens." },
+              { img: "/fish_feed.png", title: "Ornamental Fish Feed", desc: "Sustainable, high-protein fish feed enriched with essential nutrients." }
             ].map((product, index) => (
               <div className="col-md-4" data-aos="flip-up" key={index}>
                 <div className="card shadow-lg">

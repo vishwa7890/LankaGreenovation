@@ -28,3 +28,14 @@
     background-color: #218838;
     border-color: #218838;
   }
+  .verify-otp-card input {
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.verify-otp-card input:focus {
+  border-color: #4caf50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}

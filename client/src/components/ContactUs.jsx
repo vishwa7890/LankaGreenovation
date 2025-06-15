@@ -29,10 +29,10 @@ const ContactUs = () => {
           </p>
 
           {/* Contact Info */}
-          <div className="contact-info">
+          <div className="contact-info" >
             <p data-aos="zoom-in">
               <FaEnvelope className="icon" />
-              <a href="mailto:support@lankagreenovation.com">support@lankagreenovation.com</a>
+              <a href="mailto:support@lankagreenovation.com" >support@lankagreenovation.com</a>
             </p>
             <p data-aos="zoom-in">
               <FaPhoneAlt className="icon" />

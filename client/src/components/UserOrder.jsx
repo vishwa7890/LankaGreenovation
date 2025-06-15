@@ -14,23 +14,28 @@ const UserOrder = () => {
     navigate("/");
   };  
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/user/orders", {
-          withCredentials: true,
-        });
-        setOrders(response.data.orders);
-      } catch (err) {
-        setError("Failed to fetch orders");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/user/orders", {
+        withCredentials: true,
+      });
 
-    fetchOrders();
-  }, []);
+      // Sort orders by createdAt in descending order (latest first)
+      const sortedOrders = response.data.orders.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
+      setOrders(sortedOrders);
+    } catch (err) {
+      setError("Failed to fetch orders");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchOrders();
+}, []);
   return (
      <div>
     <Navbar /> 
@@ -66,9 +71,18 @@ const UserOrder = () => {
                 <div className="order-info">
                   <p><strong>Total:</strong> ₹{order.totalPrice}</p>
                   <p><strong>Payment:</strong> {order.paymentMethod} - {order.paymentStatus}</p>
-                  <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(order.createdAt).toLocaleString("en-IN", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true
+                    })}
+                  </p>
                 </div>
-
                 <div className="shipping-box">
                   <h4>📦 Shipping Address</h4>
                   {order.address ? (

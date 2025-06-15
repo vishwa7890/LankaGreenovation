@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../css/CheckOut.css";
 
 const CheckOut = () => {
@@ -9,8 +10,6 @@ const CheckOut = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [totalPrice, setTotalPrice] = useState(0);
-  const [error, setError] = useState("");
-  const [popupMessage, setPopupMessage] = useState(""); // Popup state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,7 +23,7 @@ const CheckOut = () => {
           setSelectedAddress(response.data.addresses[0]._id);
         }
       } catch (err) {
-        setError("Error fetching addresses");
+        toast.error("Error fetching addresses");
         console.error(err);
       }
     };
@@ -45,7 +44,7 @@ const CheckOut = () => {
         );
         setTotalPrice(total);
       } catch (err) {
-        setError("Error fetching cart items");
+        toast.error("Error fetching cart items");
         console.error(err);
       }
     };
@@ -54,12 +53,12 @@ const CheckOut = () => {
 
   const handleCheckout = async () => {
     if (!selectedAddress) {
-      setPopupMessage("Please select an address.");
+      toast.error("Please select an address.");
       return;
     }
 
     if (products.length === 0) {
-      setPopupMessage("Your cart is empty!");
+      toast.error("Your cart is empty!");
       return;
     }
 
@@ -106,11 +105,11 @@ const CheckOut = () => {
                   { withCredentials: true }
                 );
 
-                setPopupMessage(verifyRes.data.message || "Payment Successful!");
+                toast.success(verifyRes.data.message || "Payment Successful!");
                 navigate("/user/orders");
               } catch (verifyErr) {
                 console.error("Payment verification failed:", verifyErr);
-                setPopupMessage("Payment verification failed. Please try again.");
+                toast.error("Payment verification failed. Please try again.");
               }
             },
             prefill: {
@@ -127,7 +126,7 @@ const CheckOut = () => {
           rzp.open();
         }
       } catch (err) {
-        setError("Error initiating payment");
+        toast.error("Error initiating payment");
         console.error(err);
       }
     } else {
@@ -137,10 +136,10 @@ const CheckOut = () => {
           orderData,
           { withCredentials: true }
         );
-        setPopupMessage(response.data.message || "Order placed successfully!");
+        toast.success(response.data.message || "Order placed successfully!");
         navigate("/user/orders");
       } catch (err) {
-        setError("Error placing order");
+        toast.error("Error placing order");
         console.error(err);
       }
     }
@@ -155,22 +154,59 @@ const CheckOut = () => {
   };
 
   const handleDelete = async (addressId) => {
-    if (!window.confirm("Are you sure you want to delete this address?")) {
-      return;
-    }
-    try {
-      await axios.delete(`http://localhost:5000/user/delete-address/${addressId}`, {
-        withCredentials: true,
-      });
-      setAddresses(addresses.filter((addr) => addr._id !== addressId));
-      if (selectedAddress === addressId) {
-        setSelectedAddress(addresses.length > 1 ? addresses[0]._id : null);
-      }
-    } catch (err) {
-      setError("Error deleting address");
-      console.error(err);
-    }
-  };
+  const toastId = toast(
+    ({ closeToast }) => (
+      <div style={{ textAlign: "center" }}>
+        <p>Are you sure you want to delete this address?</p>
+        <button
+          onClick={async () => {
+            toast.dismiss(toastId);
+            try {
+              await axios.delete(
+                `http://localhost:5000/user/delete-address/${addressId}`,
+                { withCredentials: true }
+              );
+              setAddresses((prev) => prev.filter((a) => a._id !== addressId));
+              if (selectedAddress === addressId) {
+                const remaining = addresses.filter((a) => a._id !== addressId);
+                setSelectedAddress(remaining.length > 0 ? remaining[0]._id : null);
+              }
+              toast.success("Address deleted successfully!");
+            } catch (err) {
+              toast.error("Error deleting address");
+              console.error(err);
+            }
+          }}
+          style={{
+            margin: "5px",
+            padding: "5px 10px",
+            background: "crimson",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => toast.dismiss(toastId)}
+          style={{
+            margin: "5px",
+            padding: "5px 10px",
+            background: "#ccc",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          No
+        </button>
+      </div>
+    ),
+    { autoClose: false }
+  );
+};
 
   return (
     <div
@@ -181,7 +217,6 @@ const CheckOut = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        
       }}
     >
       <div className="checkout-container">
@@ -229,7 +264,8 @@ const CheckOut = () => {
               onChange={() => setPaymentMethod("COD")}
             />
             Cash on Delivery
-          </label> <br></br>
+          </label>
+          <br />
           <label>
             <input
               type="radio"
@@ -245,19 +281,7 @@ const CheckOut = () => {
         <button onClick={handleCheckout} className="green-btn">
           Place Order
         </button>
-
-        {error && <p className="error-message">{error}</p>}
       </div>
-
-      {/* Popup Modal */}
-      {popupMessage && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <p>{popupMessage}</p>
-            <button onClick={() => setPopupMessage("")}>OK</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

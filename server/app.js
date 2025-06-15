@@ -8,18 +8,15 @@ const User = require('./router/User');
 const Admin = require('./router/Admin');
 const path = require('path');
 
-
-
- 
 const app = express();
 app.use('/upload', express.static(path.join(__dirname, 'Upload')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   origin: "http://localhost:3000",
   credentials: true
 }));
-
 
 
 mongoose.connect(process.env.MONGO_URI, {

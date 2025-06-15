@@ -1,31 +1,67 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../css/SetPassword.css"; // Optional custom CSS
+import "react-toastify/dist/ReactToastify.css";
+import "../css/SetPassword.css"; // Your custom styles
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");
   const [password1, setPassword1] = useState("");
-  const [error, setError] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+
+  const calculateStrength = (pwd) => {
+    let strength = 0;
+
+    if (pwd.length >= 8) strength++;
+    if (/[A-Z]/.test(pwd)) strength++;
+    if (/[a-z]/.test(pwd)) strength++;
+    if (/[0-9]/.test(pwd)) strength++;
+    if (/[!@#$%^&*()_+[\]{};':"\\|,.<>/?`~]/.test(pwd)) strength++;
+
+    switch (strength) {
+      case 0:
+      case 1:
+        return "Very Weak";
+      case 2:
+        return "Weak";
+      case 3:
+        return "Moderate";
+      case 4:
+        return "Strong";
+      case 5:
+        return "Very Strong";
+      default:
+        return "";
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== password1) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (passwordStrength === "Very Weak" || passwordStrength === "Weak") {
+      toast.error("Password is too weak. Please use a stronger password.");
       return;
     }
 
     try {
-      await axios.post("http://localhost:5000/user/set-password", { email, password });
-      alert("Password set successfully!");
+      await axios.post("http://localhost:5000/user/set-password", {
+        email,
+        password,
+      });
+      toast.success("Password set successfully!");
       navigate("/user/login");
     } catch (err) {
-      setError("Error setting password!");
+      toast.error("Error setting password!");
     }
   };
 
@@ -43,13 +79,6 @@ const SetPassword = () => {
             <i className="fas fa-key"></i> Set New Password
           </h3>
 
-          {/* Show error message if any */}
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
             <div className="input-group">
               <input
@@ -57,10 +86,38 @@ const SetPassword = () => {
                 className="form-control set-password-input"
                 placeholder="Enter new password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  const pwd = e.target.value;
+                  setPassword(pwd);
+                  setPasswordStrength(calculateStrength(pwd));
+                }}
                 required
               />
             </div>
+            {password && (
+              <div className="text-start">
+                <small>
+                  Strength:{" "}
+                  <span
+                    style={{
+                      color:
+                        passwordStrength === "Very Weak"
+                          ? "red"
+                          : passwordStrength === "Weak"
+                          ? "orange"
+                          : passwordStrength === "Moderate"
+                          ? "gold"
+                          : passwordStrength === "Strong"
+                          ? "green"
+                          : "darkgreen",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {passwordStrength}
+                  </span>
+                </small>
+              </div>
+            )}
             <div className="input-group">
               <input
                 type="password"
@@ -71,7 +128,15 @@ const SetPassword = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn set-password-btn btn-primary w-100">
+            <button
+              type="submit"
+              className="btn set-password-btn btn-primary w-100"
+              disabled={
+                passwordStrength === "Very Weak" ||
+                passwordStrength === "Weak" ||
+                passwordStrength === ""
+              }
+            >
               Set Password
             </button>
           </form>
