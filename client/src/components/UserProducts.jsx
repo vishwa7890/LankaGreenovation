@@ -48,6 +48,14 @@ const UserProducts = () => {
   return (
     <div>
       <Navbar /> 
+        {/* Hero Section with Video */}
+        <section className="hero-section">
+          <video className="hero-video" autoPlay muted loop playsInline>
+            <source src="/serum.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </section>
+
       <div
         style={{
           minHeight: "100vh",

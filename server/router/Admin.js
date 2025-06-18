@@ -11,6 +11,7 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 const Order = require('../model/Order');
 const Product = require('../model/Product');
 const mongoose = require('mongoose');
+const Contact = require('../model/Contact');
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -432,5 +433,16 @@ router.get("/orders/:id", verifyAdmin, async (req, res) => {
   }
 });
 
-  
+
+router.get('/contactdetails',verifyAdmin,async(req,res)=>{
+  try{
+    const contactDetails = await Contact.find();
+    res.status(200).json({ message: "Contact details fetched successfully", contactDetails });
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({error:"Internal Error"});
+  }
+})
+
 module.exports=router;

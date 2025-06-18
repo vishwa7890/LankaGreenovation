@@ -13,6 +13,7 @@ require('dotenv').config();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Comment =require("../model/Comment");
+const Contact = require("../model/Contact");
 
 
 
@@ -709,7 +710,8 @@ router.post("/place-order", verifyUser, async (req, res) => {
       paymentMethod,
       paymentStatus: paymentMethod === "Online" ? "Pending" : "Pending",
     });
-
+    console.log(products);
+    
     await newOrder.save();
     if (paymentMethod === "Online") {
       const razorpayOrder = await razorpay.orders.create({
@@ -787,7 +789,7 @@ router.post("/place-order", verifyUser, async (req, res) => {
           <tbody>
             ${newOrder.products.map(product => `
               <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
               </tr>
@@ -1239,6 +1241,44 @@ router.get('/products/:id/comments', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+router.post('/contact',async (req, res) => {
+  const { name, email, message } = req.body;
+  
+
+  try {
+    const newContact = new Contact({
+      name,
+      email,
+      message
+    });
+
+    await newContact.save();
+
+    const mailOptions = {
+      from:process.env.EMAIL ,
+      to: process.env.EMAIL,
+      subject: 'New Contact Message',
+      text:  `You received a new message from ${name} (${email}):\n\n${message}`,
+    };
+    
+    await transporter.sendMail(mailOptions, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Failed to Submit Contact" });
+      }
+      res.status(200).json({ message: "Contact form submitted and email sent!" });
+    });
+    
+
+    
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong. Please try again later." });
   }
 });
 module.exports=router;

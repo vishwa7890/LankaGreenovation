@@ -11,16 +11,12 @@ import "../css/Gallery.css";
 
 // Image Data (Include captions)
 const images = [
-  { src: "/contact.jfif", caption: "Award for Excellence 2023" },
-  { src: "/images/achievement2.jpg", caption: "Innovative Product Launch" },
-  { src: "/images/achievement3.jpg", caption: "Team Success Celebration" },
-  { src: "/images/achievement4.jpg", caption: "Industry Leadership Award" },
-  { src: "/images/achievement5.jpg", caption: "CSR Contribution 2024" },
-  { src: "/images/achievement6.jpg", caption: "Tech Conference Speaker" },
-  { src: "/images/achievement7.jpg", caption: "Employee Recognition Event" },
-  { src: "/images/achievement8.jpg", caption: "Business Partnership Deal" },
-  { src: "/images/achievement9.jpg", caption: "Startup of the Year" },
-  { src: "/images/achievement10.jpg", caption: "Global Expansion Success" },
+  { src: "/gallery1.jpg", caption: "Startup India Certified!" },
+  { src: "/gallery2.jpeg", caption: "Bridging Innovation & Strategy" },
+  { src: "/gallery3.jpeg", caption: "Startup Success!" },
+  { src: "/gallery4.jpeg", caption: "Showcasing Innovation!" },
+  { src: "/gallery5.jpeg", caption: "A Milestone in Biotechnology" },
+  { src: "/gallery6.jpeg", caption: "Revolutionizing Food Waste" },
 ];
 
 const Gallery = () => {
@@ -78,7 +74,7 @@ const Gallery = () => {
       <div className="container gallery-container" data-aos="fade-up">
         <h2 className="gallery-heading">Our Achievements</h2>
         <p className="gallery-description">
-          A glimpse of our milestones and successes over the years.
+          
         </p>
 
         {/* Image Slider */}

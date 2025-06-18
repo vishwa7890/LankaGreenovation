@@ -61,6 +61,9 @@ const AdminNavbar = () => {
               <Link className="btn custom-nav-btn" to="/ProductList">Edit Product</Link>
             </li>
             <li className="nav-item">
+              <Link className="btn custom-nav-btn" to="/admin/contact">View Messages</Link>
+            </li>
+            <li className="nav-item">
               <Link className="btn custom-nav-btn" to="/admin/orders">View Orders</Link>
             </li>
             <li className="nav-item">

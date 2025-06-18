@@ -197,6 +197,7 @@
 
 .popup-message.error {
   background-color: #dc3545;
+  color: white;
 }
 
 /* Responsive */

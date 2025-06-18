@@ -12,7 +12,7 @@ import {
   FaFingerprint,
   FaPhoneAlt
 } from "react-icons/fa";
-import { toast } from "react-toastify"; // ✅ Import toast
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AdminOrder = () => {

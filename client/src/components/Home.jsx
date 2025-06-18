@@ -17,12 +17,12 @@ const Home = () => {
       <Navbar />
       {/* Hero Section with Image Slider */}
       <section
-        className="hero text-center text-white py-5 d-flex align-items-center justify-content-center position-relative"
-        style={{ minHeight: "60vh", overflow: "hidden", backgroundColor: "#1B4D3E" }}
+        className="hero text-center text-white py-5 d-flex align-items-center justify-content-center position-relative "
+        style={{ minHeight: "60vh", overflow: "hidden", backgroundColor: "#ededed" }}
       >
         <div id="heroCarousel" className="carousel slide w-100 h-100" data-bs-ride="carousel">
   <div className="carousel-inner">
-    {["/hero1.jpg", "/hero2.jpg", "/hero3.jpg"].map((src, index) => (
+    {["/banner1.png", "/banner2.png", "/banner3.png"].map((src, index) => (
       <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
         <img
           src={src}
@@ -44,8 +44,6 @@ const Home = () => {
 
         {/* Overlay Text */}
         <div className="position-absolute top-50 start-50 translate-middle text-center" data-aos="fade-up">
-          <h1 className="display-4 fw-bold">Lanka Greenovation</h1>
-          <p className="lead">Innovating Sustainability with Biotech Solutions</p>
           <a href="/AboutUs" className="btn btn-light text-dark mt-3">Learn More</a>
         </div>
       </section>

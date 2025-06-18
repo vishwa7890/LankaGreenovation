@@ -1,8 +1,13 @@
 /* --- Hero Section --- */
 .hero a.btn {
   transition: all 0.3s ease-in-out;
+  background: rgba(255, 255, 255, 0.2); /* Slight transparency */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Soft border */
+  backdrop-filter: blur(10px); /* Glass effect */
+  color: white; /* Adjust text color for readability */
+  padding: 10px 20px;
+  border-radius: 5px;
 }
-
 .hero a.btn:hover {
   background-color: #ffffff; /* Darker green on hover */
   color: white;
