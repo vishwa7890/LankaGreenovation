@@ -8,6 +8,7 @@ import {
   FaPlus,
   FaMinus,
   FaCheck,
+  FaArrowLeft,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,7 +47,7 @@ const UserCart = () => {
   }, []);
 
   const handleViewProduct = (id) => navigate(`/user/product/${id}`);
-
+  const handleBack = () => navigate(-1);
   const handleCheckout = () => navigate("/user/checkout");
 
   const handleRemoveProduct = async (id) => {
@@ -96,7 +97,24 @@ const UserCart = () => {
           padding: "30px",
         }}
       >
+        
         <div className="cart-container">
+          <button
+          onClick={handleBack}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            marginBottom: "15px",
+            display: "flex",
+            alignItems: "center",
+            color: "#333",
+          }}
+        >
+          <FaArrowLeft style={{ marginRight: "5px" }} /> Back
+        </button>
           <h2>
             <FaShoppingCart /> Your Cart
           </h2>
@@ -141,10 +159,9 @@ const UserCart = () => {
                         className="remove-btn"
                         onClick={() => handleRemoveProduct(product._id)}
                       >
-                        <FaTrash /> Remove
+                        <FaTrash /> 
                       </button>
                     </div>
-
                     <div className="quantity-controls">
                       <button
                         disabled={product.quantity === 1}

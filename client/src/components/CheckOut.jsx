@@ -11,203 +11,97 @@ const CheckOut = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchAddress = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/user/get-address", {
-          withCredentials: true,
-        });
-        setAddresses(response.data.addresses);
-        if (response.data.addresses.length > 0) {
-          setSelectedAddress(response.data.addresses[0]._id);
-        }
-      } catch (err) {
-        toast.error("Error fetching addresses");
-        console.error(err);
-      }
-    };
-    fetchAddress();
-  }, []);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/user/cart", {
-          withCredentials: true,
-        });
-        setProducts(response.data.cart.items);
-
-        const total = response.data.cart.items.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0
-        );
-        setTotalPrice(total);
-      } catch (err) {
-        toast.error("Error fetching cart items");
-        console.error(err);
-      }
-    };
-    fetchCart();
-  }, []);
-
-  const handleCheckout = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select an address.");
-      return;
-    }
-
-    if (products.length === 0) {
-      toast.error("Your cart is empty!");
-      return;
-    }
-
-    const orderData = {
-      addressId: selectedAddress,
-      paymentMethod,
-      products: products.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      totalPrice,
-    };
-
-    if (paymentMethod === "Online") {
-      try {
-        const response = await axios.post(
-          "http://localhost:5000/user/place-order",
-          orderData,
-          {
-            withCredentials: true,
-          }
-        );
-
-        if (response.data.razorpayOrder) {
-          const { id: orderId, amount, currency } = response.data.razorpayOrder;
-
-          const options = {
-            key: "rzp_test_73Og2QB6bRrFB9",
-            amount,
-            currency,
-            name: "Lanka",
-            description: "Test Transaction",
-            order_id: orderId,
-            handler: async function (response) {
-              try {
-                const verifyRes = await axios.post(
-                  "http://localhost:5000/user/verify-payment",
-                  {
-                    razorpayOrderId: response.razorpay_order_id,
-                    razorpayPaymentId: response.razorpay_payment_id,
-                    razorpaySignature: response.razorpay_signature,
-                  },
-                  { withCredentials: true }
-                );
-
-                toast.success(verifyRes.data.message || "Payment Successful!");
-                navigate("/user/orders");
-              } catch (verifyErr) {
-                console.error("Payment verification failed:", verifyErr);
-                toast.error("Payment verification failed. Please try again.");
-              }
-            },
-            prefill: {
-              name: "Customer Name",
-              email: "customer@example.com",
-              contact: "9999999999",
-            },
-            theme: {
-              color: "#4CAF50",
-            },
-          };
-
-          const rzp = new window.Razorpay(options);
-          rzp.open();
-        }
-      } catch (err) {
-        toast.error("Error initiating payment");
-        console.error(err);
-      }
-    } else {
-      try {
-        const response = await axios.post(
-          "http://localhost:5000/user/place-order",
-          orderData,
-          { withCredentials: true }
-        );
-        toast.success(response.data.message || "Order placed successfully!");
-        navigate("/user/orders");
-      } catch (err) {
-        toast.error("Error placing order");
-        console.error(err);
-      }
-    }
-  };
-
   const handleAdd = () => {
     navigate("/user/addadress");
   };
+  const handleBack = () => navigate(-1);
+  useEffect(() => {
+    axios.get("http://localhost:5000/user/get-address", { withCredentials: true })
+      .then(res => {
+        setAddresses(res.data.addresses);
+        if (res.data.addresses.length > 0) setSelectedAddress(res.data.addresses[0]._id);
+      })
+      .catch(err => toast.error("Failed to fetch addresses"));
+  }, []);
 
-  const handleEdit = (id) => {
-    navigate(`/user/updateaddress/${id}`);
-  };
+  useEffect(() => {
+    axios.get("http://localhost:5000/user/cart", { withCredentials: true })
+      .then(res => {
+        setProducts(res.data.cart.items);
+        const total = res.data.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        setTotalPrice(total);
+      })
+      .catch(err => toast.error("Failed to fetch cart"));
+  }, []);
 
-  const handleDelete = async (addressId) => {
-  const toastId = toast(
-    ({ closeToast }) => (
-      <div style={{ textAlign: "center" }}>
-        <p>Are you sure you want to delete this address?</p>
-        <button
-          onClick={async () => {
-            toast.dismiss(toastId);
+  const handleCheckout = async () => {
+    if (!selectedAddress) return toast.error("Please select an address.");
+    if (products.length === 0) return toast.error("Your cart is empty.");
+
+    if (paymentMethod === "Online") {
+      try {
+        const res = await axios.post("http://localhost:5000/user/initiate-payment", { totalPrice }, { withCredentials: true });
+        const { id: orderId, amount, currency } = res.data.razorpayOrder;
+
+        const options = {
+          key: "rzp_test_GiLijRlMnuemoM",
+          amount,
+          currency,
+          name: "Lanka",
+          description: "Order Payment",
+          order_id: orderId,
+          handler: async function (response) {
             try {
-              await axios.delete(
-                `http://localhost:5000/user/delete-address/${addressId}`,
-                { withCredentials: true }
-              );
-              setAddresses((prev) => prev.filter((a) => a._id !== addressId));
-              if (selectedAddress === addressId) {
-                const remaining = addresses.filter((a) => a._id !== addressId);
-                setSelectedAddress(remaining.length > 0 ? remaining[0]._id : null);
-              }
-              toast.success("Address deleted successfully!");
-            } catch (err) {
-              toast.error("Error deleting address");
-              console.error(err);
-            }
-          }}
-          style={{
-            margin: "5px",
-            padding: "5px 10px",
-            background: "crimson",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Yes
-        </button>
-        <button
-          onClick={() => toast.dismiss(toastId)}
-          style={{
-            margin: "5px",
-            padding: "5px 10px",
-            background: "#ccc",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          No
-        </button>
-      </div>
-    ),
-    { autoClose: false }
-  );
-};
+              const verifyRes = await axios.post("http://localhost:5000/user/verify-payment", {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                addressId: selectedAddress,
+                paymentMethod: "Online",
+                products: products.map(p => ({
+                  productId: p.productId,
+                  quantity: p.quantity,
+                  price: p.price
+                })),
+                totalPrice
+              }, { withCredentials: true });
 
+              toast.success("Payment and order successful!");
+              navigate("/user/orders");
+              console.log(verifyRes);
+            } catch (err) {
+              toast.error("Payment verification failed.");
+            }
+          },
+          theme: { color: "#4CAF50" },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        toast.error("Failed to initiate payment.");
+      }
+    } else {
+      try {
+        const orderData = {
+          addressId: selectedAddress,
+          paymentMethod: "COD",
+          products: products.map(p => ({
+            productId: p.productId,
+            quantity: p.quantity,
+            price: p.price
+          })),
+          totalPrice
+        };
+
+        await axios.post("http://localhost:5000/user/place-order", orderData, { withCredentials: true });
+        toast.success("Order placed successfully!");
+        navigate("/user/orders");
+      } catch (err) {
+        toast.error("Failed to place COD order.");
+      }
+    }
+  };
   return (
     <div
       style={{
@@ -219,7 +113,12 @@ const CheckOut = () => {
         alignItems: "center",
       }}
     >
+      
       <div className="checkout-container">
+        {/* Back Button */}
+      <button onClick={handleBack} className="back-btn">
+        ← Back
+      </button>
         <h2 className="title">Checkout</h2>
 
         <div className="section">

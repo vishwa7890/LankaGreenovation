@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../css/Home.css";
 import "../css/Footer.css"; 
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 const Home = () => {
   useEffect(() => {
@@ -119,6 +121,14 @@ const Home = () => {
           </div>
         </div>
       </section>
+              <a
+          href="https://wa.me/919095084840"
+          className="whatsapp-float"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i className="fab fa-whatsapp whatsapp-icon"></i>
+        </a>
       <Footer />
     </div>
   );

@@ -42,3 +42,35 @@
 .list-group-item:hover {
   background-color: #eafaf1; 
 }
+.whatsapp-float {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 1000;
+  text-decoration: none;
+}
+
+.whatsapp-icon {
+  font-size: 50px;
+  color: #25D366;
+  background-color: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: bounce 2s infinite;
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-icon:hover {
+  transform: translateY(-50%) scale(1.2);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-50%) translateY(0);
+  }
+  50% {
+    transform: translateY(-50%) translateY(-10px);
+  }
+}

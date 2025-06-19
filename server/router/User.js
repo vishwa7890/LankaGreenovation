@@ -16,8 +16,6 @@ const Comment =require("../model/Comment");
 const Contact = require("../model/Contact");
 
 
-
-
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -95,7 +93,7 @@ router.post('/register', async (req, res) => {
       If you didn’t request this code, please ignore this email.
     </p>
     <p style="font-size: 12px; color: #888; text-align: center;">
-      For assistance, contact us at <strong><a href="mailto:support@lankagreenovation.com" style="color: #4CAF50;">support@lankagreenovation.com</a></strong>.
+      For assistance, contact us at <strong><a href="mailto:lankagreenovation@gmail.com" style="color: #4CAF50;">lankagreenovation@gmail.com</a></strong>.
     </p>
 
   </div>
@@ -167,7 +165,7 @@ router.post('/resend-otp', async (req, res) => {
                   If you didn’t request this code, please ignore this email.
                 </p>
                 <p style="font-size: 12px; color: #888; text-align: center;">
-                  For assistance, contact us at <strong><a href="mailto:support@lankagreenovation.com" style="color: #4CAF50;">support@lankagreenovation.com</a></strong>.
+                  For assistance, contact us at <strong><a href="mailto:lankagreenovation@gmail.com" style="color: #4CAF50;">lankagreenovation@gmail.com</a></strong>.
                 </p>
               </div>
             </body>
@@ -277,7 +275,7 @@ router.post('/set-password', async (req, res) => {
           If you did not perform this action, please contact our support team immediately.
         </p>
         <p style="font-size: 12px; color: #888; text-align: center;">
-          For assistance, contact us at <strong>support@lankagreenovation.com</strong>.
+          For assistance, contact us at <strong>lankagreenovation@gmail.com</strong>.
         </p>
       </div>
     </body>
@@ -678,6 +676,30 @@ const razorpay = new Razorpay({
   key_secret: process.env.KEY_SECRET
 });
 
+// Step 1: Initiate Razorpay Order (No DB save yet)
+router.post("/initiate-payment", verifyUser, async (req, res) => {
+  try {
+    const { totalPrice } = req.body;
+
+    if (!totalPrice || totalPrice <= 0) {
+      return res.status(400).json({ message: "Invalid total price" });
+    }
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: totalPrice * 100, // Convert ₹ to paise
+      currency: "INR",
+      receipt: "receipt_" + Date.now(),
+      payment_capture: 1
+    });
+
+    res.status(200).json({ razorpayOrder });
+
+  } catch (err) {
+    console.error("Error initiating Razorpay payment:", err);
+    res.status(500).json({ message: "Razorpay order creation failed" });
+  }
+});
+
 
 router.post("/place-order", verifyUser, async (req, res) => {
   try {
@@ -688,13 +710,13 @@ router.post("/place-order", verifyUser, async (req, res) => {
       return res.status(400).json({ message: "No products selected" });
     }
 
-    const address = await Address.findById(addressId);
-    if (!address) {
-      return res.status(400).json({ message: "Address is required" });
+    if (paymentMethod !== "COD") {
+      return res.status(400).json({ message: "This endpoint supports only COD orders" });
     }
 
-    if (!paymentMethod || !["COD", "Online"].includes(paymentMethod)) {
-      return res.status(400).json({ message: "Invalid payment method" });
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(400).json({ message: "Address not found" });
     }
 
     const user = await User.findById(userId);
@@ -708,31 +730,13 @@ router.post("/place-order", verifyUser, async (req, res) => {
       address: address._id,
       totalPrice,
       paymentMethod,
-      paymentStatus: paymentMethod === "Online" ? "Pending" : "Pending",
+      paymentStatus: "Pending",
     });
-    console.log(products);
-    
+
     await newOrder.save();
-    if (paymentMethod === "Online") {
-      const razorpayOrder = await razorpay.orders.create({
-        amount: totalPrice * 100,
-        currency: "INR",
-        receipt: newOrder._id.toString(),
-        payment_capture: 1,
-      });
-
-      newOrder.razorpayOrderId = razorpayOrder.id;
-      await newOrder.save();
-
-      return res.status(201).json({
-        message: "Order placed, awaiting payment",
-        order: newOrder,
-        razorpayOrder,
-      });
-    }
-
-
-    const productDetails = products.map(p => `- ${p.productId?.name} (x${p.quantity})`).join("\n");
+    await newOrder.populate("products.productId");
+    
+    
 
     const mailOptions = {
   from: process.env.EMAIL,
@@ -765,7 +769,7 @@ router.post("/place-order", verifyUser, async (req, res) => {
         <h2 style="text-align: center; color: #333;">Order Confirmation</h2>
 
         <!-- Greeting -->
-        <p style="text-align: center; color: #555;">Hello <strong>${user.name}</strong>,</p>
+        <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
         <p style="text-align: center; color: #555;">
           Your order has been successfully placed. Here are your order details:
         </p>
@@ -804,7 +808,7 @@ router.post("/place-order", verifyUser, async (req, res) => {
 
         <!-- Footer -->
         <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          For any help, contact us at <strong>support@lankagreenovation.com</strong>.
+          For any help, contact us at <strong>lankagreenovation@gmail.com</strong>.
         </p>
       </div>
     </body>
@@ -812,10 +816,12 @@ router.post("/place-order", verifyUser, async (req, res) => {
   `
 };
 
+    transporter.sendMail(mailOptions);
 
+    
   const mailOptions2 = {
   from: process.env.EMAIL,
-  to: "aathi22004@gmail.com",
+  to: process.env.EMAIL,
   subject: 'Your User Placed Order',
   html: `
     <!DOCTYPE html>
@@ -865,7 +871,7 @@ router.post("/place-order", verifyUser, async (req, res) => {
           <tbody>
             ${newOrder.products.map(product => `
               <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
               </tr>
@@ -882,25 +888,25 @@ router.post("/place-order", verifyUser, async (req, res) => {
     </html>
   `
 };
+   transporter.sendMail(mailOptions2);
 
+    await Cart.deleteMany({ userId });
 
-    transporter.sendMail(mailOptions);
-    transporter.sendMail(mailOptions2);
-
-    await Cart.deleteMany({ userId:userId });
-    res.status(201).json({ message: "Order placed successfully", order: newOrder });
+    res.status(201).json({ message: "COD Order placed successfully", order: newOrder });
 
   } catch (error) {
-    res.status(500).json({ message: "Error placing order", error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Error placing COD order", error: error.message });
   }
 });
 
 
-
-
-router.post("/verify-payment", async (req, res) => {
+router.post("/verify-payment",verifyUser, async (req, res) => {
   try {
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature,addressId,
+    paymentMethod,
+    products,
+    totalPrice } = req.body;
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.KEY_SECRET)
@@ -917,8 +923,13 @@ router.post("/verify-payment", async (req, res) => {
       { new: true }
     );
 
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
     const user = await User.findById(order.userId);
-    const productDetails = order.products.map(p => `- ${p.productId?.name} (x${p.quantity})`).join("\n");
+
+    await order.populate("products.productId");
 
     const mailOptions = {
   from: process.env.EMAIL,
@@ -949,7 +960,7 @@ router.post("/verify-payment", async (req, res) => {
 
         <!-- Greeting & Confirmation -->
         <h2 style="text-align: center; color: #333;">Payment Successful!</h2>
-        <p style="text-align: center; color: #555;">Dear <strong>${user.name}</strong>,</p>
+        <p style="text-align: center; color: #555;">Dear <strong>${user.username}</strong>,</p>
         <p style="text-align: center; color: #555;">We’ve received your payment and your order has been confirmed.</p>
 
         <!-- Order Summary -->
@@ -971,7 +982,7 @@ router.post("/verify-payment", async (req, res) => {
           <tbody>
             ${order.products.map(product => `
               <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
               </tr>
@@ -984,16 +995,18 @@ router.post("/verify-payment", async (req, res) => {
           Thank you for shopping with us!  
         </p>
         <p style="font-size: 12px; color: #888; text-align: center;">
-          For help, contact <strong>support@lankagreenovation.com</strong>.
+          For help, contact <strong>lankagreenovation@gmail.com</strong>.
         </p>
       </div>
     </body>
     </html>
   `
 };
+    transporter.sendMail(mailOptions);
+
     const mailOptions2 = {
   from: process.env.EMAIL,
-  to: "aathi22004@gmail.com",
+  to: process.env.EMAIL,
   subject: 'Your User Placed Order',
   html: `
     <!DOCTYPE html>
@@ -1043,7 +1056,7 @@ router.post("/verify-payment", async (req, res) => {
           <tbody>
             ${newOrder.products.map(product => `
               <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
                 <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
               </tr>
@@ -1060,19 +1073,19 @@ router.post("/verify-payment", async (req, res) => {
     </html>
   `
 };
-
-
-    transporter.sendMail(mailOptions);
-    transporter.sendMail(adminMailOptions);
+    
+    transporter.sendMail(mailOptions2);
 
     await Cart.deleteMany({ userId: order.userId });
 
     res.status(200).json({ message: "Payment verified", order });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to verify payment", error: error.message });
   }
 });
+
 
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
@@ -1135,7 +1148,7 @@ router.post('/forgot-password', async (req, res) => {
           If you didn’t request this OTP, you can safely ignore this message.
         </p>
         <p style="font-size: 12px; color: #888; text-align: center;">
-          Need help? Contact <strong>support@lankagreenovation.com</strong>.
+          Need help? Contact <strong>lankagreenovation@gmail.com</strong>.
         </p>
       </div>
     </body>
@@ -1259,11 +1272,58 @@ router.post('/contact',async (req, res) => {
     await newContact.save();
 
     const mailOptions = {
-      from:process.env.EMAIL ,
-      to: process.env.EMAIL,
-      subject: 'New Contact Message',
-      text:  `You received a new message from ${name} (${email}):\n\n${message}`,
-    };
+  from: process.env.EMAIL,
+  to: process.env.EMAIL,
+  subject: 'New Contact Message',
+  html: `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Contact Message</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+      <table style="width: 100%; margin-bottom: 20px;">
+        <tr>
+          <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+          <td style="text-align: left; vertical-align: middle;">
+            <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">New Contact Message</span>
+          </td>
+        </tr>
+      </table>
+
+      <h2 style="text-align: center; color: #333;">You've Got a New Message!</h2>
+
+      <p style="text-align: center; color: #555;">
+        Hello Admin, someone just reached out via the contact form.
+      </p>
+
+      <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong><br/>${message}</p>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="mailto:${email}" style="display: inline-block; padding: 12px 24px; font-size: 16px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px;">
+          Reply to ${name}
+        </a>
+      </div>
+
+      <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+        This is an automated notification from the Lanka Greenovation website.
+      </p>
+    </div>
+  </body>
+  </html>
+  `
+};
+
     
     await transporter.sendMail(mailOptions, (err) => {
       if (err) {

@@ -57,11 +57,11 @@ const ContactUs = () => {
           <div className="contact-info">
             <p data-aos="zoom-in">
               <FaEnvelope className="icon" />
-              <a href="mailto:support@lankagreenovation.com">support@lankagreenovation.com</a>
+              <a href="mailto:lankagreenovation@gmail.com">lankagreenovation@gmail.com</a>
             </p>
             <p data-aos="zoom-in">
               <FaPhoneAlt className="icon" />
-              <a href="tel:+919876543210">+91 9876543210</a>
+              <a href="tel:+919944215859">+91 99442 15859</a>
             </p>
           </div>
           <form onSubmit={handleSubmit}>
