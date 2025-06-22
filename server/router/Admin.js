@@ -12,6 +12,7 @@ const Order = require('../model/Order');
 const Product = require('../model/Product');
 const mongoose = require('mongoose');
 const Contact = require('../model/Contact');
+const nodemailer = require('nodemailer');
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -23,7 +24,13 @@ const storage = multer.diskStorage({
       cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
   }
 });
-
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
 
 const upload = multer({
   storage: storage,
@@ -402,11 +409,11 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
     // If status is Cancelled, send email to user and admin
     if (orderStatus === "Cancelled") {
       const user = await User.findById(updatedOrder.userId);
-      const productDetails = updatedOrder.products
-        .map(p => `- ${p.productId?.name || "Product"} (x${p.quantity})`)
-        .join("\n");
+     const productDetails = updatedOrder.products
+  .map(p => `- ${p.productId?.name || "Product"} (x${p.quantity})`)
+  .join("<br>");
 
-      const userMailOptions = {
+const userMailOptions = {
   from: process.env.EMAIL,
   to: user.email,
   subject: 'Your Order Has Been Cancelled',
@@ -420,8 +427,8 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
     </head>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
       <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-        
-        <!-- Header with logo and function name -->
+
+        <!-- Logo and Function Name in Table -->
         <table style="width: 100%; margin-bottom: 20px;">
           <tr>
             <td style="width: 100px;">
@@ -434,36 +441,44 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
         </table>
 
         <!-- Title -->
-        <h2 style="text-align: center; color: #333;">Your Order Has Been Cancelled</h2>
+        <h2 style="text-align: center; color: #333;">Order Cancellation Confirmation</h2>
 
-        <!-- Message -->
-        <p style="text-align: center; color: #555;">Dear <strong>${user.name}</strong>,</p>
+        <!-- Greeting -->
+        <p style="text-align: center; color: #555;">Hello <strong>${user.name}</strong>,</p>
         <p style="text-align: center; color: #555;">
-          Your order has been cancelled. Below are the order details:
+          Your order has been cancelled. Below are your order details:
         </p>
 
-        <!-- Order Info -->
-        <div style="margin: 20px 0; color: #333; font-size: 16px;">
-          <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
-          <p><strong>Products:</strong></p>
-          <pre style="background-color: #f0f0f0; padding: 10px; border-radius: 6px; white-space: pre-wrap;">${productDetails}</pre>
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${updatedOrder.productId.name}</p>
           <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
         </div>
 
+        <!-- Product List -->
+        <div style="margin: 20px 0;">
+          <h4 style="color: #444;">Cancelled Products:</h4>
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #333;">
+            ${productDetails}
+          </div>
+        </div>
+
         <!-- Apology -->
-        <p style="text-align: center; color: #777;">
-          We’re sorry for the inconvenience.
+        <p style="text-align: center; color: #777; margin-top: 20px;">
+          We’re sorry for the inconvenience. If you have any questions, please reach out to our support team.
         </p>
 
         <!-- Footer -->
         <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          For any questions, contact us at <strong>support@lankagreenovation.com</strong>.
+          For assistance, contact us at <strong>lankagreenovation@gmail.com</strong>.
         </p>
       </div>
     </body>
     </html>
   `
 };
+
+
       transporter.sendMail(userMailOptions, (err) => {
         if (err) console.error("Failed to send cancellation email to user:", err);
       });
