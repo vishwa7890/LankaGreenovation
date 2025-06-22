@@ -7,6 +7,14 @@ import Footer from "../components/Footer";
 import "../css/Home.css";
 import "../css/Footer.css"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+// Import required modules
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 
 const Home = () => {
@@ -17,38 +25,30 @@ const Home = () => {
   return (
     <div className="bg-light">
       <Navbar />
-      {/* Hero Section with Image Slider */}
-      <section
-        className="hero text-center text-white py-5 d-flex align-items-center justify-content-center position-relative "
-        style={{ minHeight: "60vh", overflow: "hidden", backgroundColor: "#ededed" }}
-      >
-        <div id="heroCarousel" className="carousel slide w-100 h-100" data-bs-ride="carousel">
-  <div className="carousel-inner">
-    {["/banner1.png", "/banner2.png", "/banner3.png"].map((src, index) => (
-      <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-        <img
-          src={src}
-          className="d-block w-100"
-          alt={`Hero Image ${index + 1}`}
-          style={{ width: "100%", height: "60vh", objectFit: "cover" }}
-        />
+      <section className="hero" style={{ minHeight: "60vh", backgroundColor: "#ededed" }}>
+      <div className="container-fluid p-0">
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={30}
+          slidesPerView={1}
+          navigation
+          pagination={{ clickable: true }}
+          autoplay={{ delay: 3000 }}
+          loop={true}
+        >
+          <SwiperSlide>
+            <img className="d-block w-100 hero-img" src="banner1.png" alt="Slide 1" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img className="d-block w-100 hero-img" src="banner2.png" alt="Slide 2" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img className="d-block w-100 hero-img" src="banner3.png" alt="Slide 3" />
+          </SwiperSlide>
+        </Swiper>
       </div>
-    ))}
-  </div>
-  <button className="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-  </button>
-  <button className="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-  </button>
-</div>
+    </section>
 
-
-        {/* Overlay Text */}
-        <div className="position-absolute top-50 start-50 translate-middle text-center" data-aos="fade-up">
-          <a href="/AboutUs" className="btn btn-light text-dark mt-3">Learn More</a>
-        </div>
-      </section>
 
       {/* About Us Section */}
       <section id="about" className="container py-5 bg-light rounded">

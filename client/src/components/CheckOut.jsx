@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../css/CheckOut.css";
+import {FaArrowLeft,
+} from "react-icons/fa";
 
 const CheckOut = () => {
   const [products, setProducts] = useState([]);
@@ -206,8 +208,21 @@ const CheckOut = () => {
         alignItems: "center",
       }} >
       <div className="checkout-container">
-        <button onClick={handleBack} className="back-btn">
-          ← Back
+        <button
+          onClick={handleBack}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            marginBottom: "15px",
+            display: "flex",
+            alignItems: "center",
+            color: "#333",
+          }}
+        >
+          <FaArrowLeft style={{ marginRight: "5px" }} /> Back
         </button>
         <h2 className="title">Checkout</h2>
 

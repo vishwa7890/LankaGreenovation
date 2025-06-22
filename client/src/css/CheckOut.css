@@ -139,6 +139,8 @@
   color: #007bff;
 }
 
+
+
   
   
   /* Animation */
@@ -152,18 +154,78 @@
       transform: translateY(0);
     }
   }
-  
-  /* Responsive */
   @media (max-width: 600px) {
-    .checkout-container {
-      padding: 20px;
-    }
-  
-    .title {
-      font-size: 24px;
-    }
-  
-    .section h3 {
-      font-size: 18px;
-    }
+  .checkout-container {
+    padding: 15px;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
   }
+
+  .title {
+    font-size: 22px;
+    padding-bottom: 8px;
+  }
+
+  .section h3 {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+
+  .address-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .address-card input[type="radio"] {
+    margin-bottom: 8px;
+  }
+
+  .address-card label {
+    font-size: 14px;
+  }
+
+  .address-card p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .green-btn, .back-btn {
+    width: 100%;
+    font-size: 15px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .address-card button {
+    font-size: 13px;
+    margin-top: 8px;
+    margin-left: 0;
+  }
+  .back-btn {
+    
+    top: 15px;
+    left: 15px;
+    margin-bottom: 0;
+    font-size: 16px;
+    color: #333;
+    background: none;
+    border: none;
+    font-weight: bold;
+    z-index: 1000;
+  }
+
+  .popup-box {
+    width: 90%;
+    padding: 15px 20px;
+  }
+
+  .popup-box button {
+    padding: 6px 16px;
+    font-size: 14px;
+  }
+
+  .error-message {
+    font-size: 13px;
+  }
+}

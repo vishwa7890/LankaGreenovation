@@ -9,7 +9,6 @@ import "slick-carousel/slick/slick-theme.css";
 import Modal from "react-modal";
 import "../css/Gallery.css";
 
-// Image Data (Include captions)
 const images = [
   { src: "/gallery1.jpg", caption: "Startup India Certified!" },
   { src: "/gallery2.jpeg", caption: "Bridging Innovation & Strategy" },
@@ -24,7 +23,6 @@ const Gallery = () => {
     AOS.init({ duration: 1000 });
   }, []);
 
-  // Modal State
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedCaption, setSelectedCaption] = useState("");
@@ -38,8 +36,16 @@ const Gallery = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
+  useEffect(() => {
+    let timer;
+    if (modalIsOpen) {
+      timer = setTimeout(() => {
+        closeModal();
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [modalIsOpen]);
 
-  // Slick Carousel Settings (Highlighting Center Image)
   const settings = {
     dots: true,
     infinite: true,
@@ -53,16 +59,11 @@ const Gallery = () => {
     responsive: [
       {
         breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-        },
+        settings: { slidesToShow: 2 },
       },
       {
         breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          centerMode: false,
-        },
+        settings: { slidesToShow: 1, centerMode: false },
       },
     ],
   };
@@ -70,14 +71,8 @@ const Gallery = () => {
   return (
     <div className="gallery-bg">
       <Navbar />
-
       <div className="container gallery-container" data-aos="fade-up">
         <h2 className="gallery-heading">Our Achievements</h2>
-        <p className="gallery-description">
-          
-        </p>
-
-        {/* Image Slider */}
         <Slider {...settings} className="gallery-slider">
           {images.map((item, index) => (
             <div key={index} className="gallery-item" data-aos="zoom-in">
@@ -92,10 +87,9 @@ const Gallery = () => {
           ))}
         </Slider>
       </div>
-
       <Footer />
 
-      {/* Lightbox Modal */}
+      {/* Modal */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
@@ -103,9 +97,7 @@ const Gallery = () => {
         className="modal-content"
         overlayClassName="modal-overlay"
       >
-        <button className="close-button" onClick={closeModal}>
-          ✖
-        </button>
+        <button className="close-button" onClick={closeModal}>✖</button>
         <img src={selectedImage} alt="Enlarged View" className="modal-image" />
         <p className="modal-caption">{selectedCaption}</p>
       </Modal>

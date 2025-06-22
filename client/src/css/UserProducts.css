@@ -117,6 +117,22 @@
   transform: scale(1.03);
 }
 
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.hero-video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
 /* Animations */
 @keyframes fadeIn {
   0% {
@@ -150,7 +166,8 @@
     transform: translateY(0);
   }
 }
-/* --- RESPONSIVE ENHANCEMENTS --- */
+
+/* --- Responsive Enhancements --- */
 @media (max-width: 768px) {
   .user-products-container {
     padding: 20px;
@@ -158,6 +175,27 @@
 
   .user-products-title {
     font-size: 2rem;
+  }
+
+  .user-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .user-product-card {
+    padding: 15px;
+  }
+
+  .user-product-thumbnail {
+    height: 130px;
+  }
+
+  .user-product-name {
+    font-size: 1.1rem;
+  }
+
+  .user-product-card p {
+    font-size: 0.85rem;
   }
 
   .user-product-buttons {
@@ -168,10 +206,17 @@
   .user-add-btn,
   .user-view-btn {
     width: 100%;
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+   .hero-video {
+    height: 30vh;
+    object-fit: cover;
   }
 
   .hero-section {
-    height: 40vh;
+    height: auto;
   }
 }
 
@@ -180,48 +225,23 @@
     font-size: 1.6rem;
   }
 
+  .user-product-grid {
+    grid-template-columns: repeat(2, 1fr); /* Changed from 1fr to 2 cols */
+  }
+
   .user-product-name {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .user-product-card p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
-  .user-product-grid {
-    grid-template-columns: 1fr;
+  .user-product-thumbnail {
+    height: 120px;
   }
 
   .hero-section {
     height: 35vh;
   }
 }
-
-/* Responsive Padding */
-@media (max-width: 768px) {
-  .user-products-container {
-    padding: 20px;
-  }
-
-  .user-products-title {
-    font-size: 2rem;
-  }
-
-  .user-product-buttons {
-    flex-direction: column;
-  }
-}
-.hero-section {
-  position: relative;
-  width: 100%;
-  height: 60vh;
-  overflow: hidden;
-  margin-bottom: 30px;
-}
-
-.hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-

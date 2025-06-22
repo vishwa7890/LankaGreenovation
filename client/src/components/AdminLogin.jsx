@@ -30,14 +30,7 @@ const AdminLogin = () => {
     <>
       <AdminNavbar />
 
-      <div
-        style={{
-          minHeight: "100vh",
-          padding: "50px",
-          background:
-            "linear-gradient(90deg, rgba(27,167,14,1) 0%, rgba(241,249,243,0.9831582291119573) 49%, rgba(27,167,14,1) 100%)",
-        }}
-      >
+      <div className="admin-login-bg">
         <div className="admin-login-container fade-in">
           <h2 className="admin-login-title">Admin Login</h2>
           <form onSubmit={handleLogin} className="admin-login-form">

@@ -142,3 +142,42 @@
       transform: translateY(0);
     }
   }
+  /* Responsive for medium screens - 2 columns */
+@media (max-width: 768px) {
+  .product-list-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 15px;
+  }
+
+  .product-list-card {
+    padding: 10px;
+  }
+
+  .product-list-thumbnail {
+    max-height: 180px;
+    object-fit: cover;
+  }
+
+  .product-list-card-title {
+    font-size: 1rem;
+  }
+
+  .product-list-card-text {
+    font-size: 0.9rem;
+  }
+
+  .product-list-button {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+
+  .product-list-image-gallery {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .product-list-product-image {
+    width: 100%;
+    height: auto;
+  }
+}

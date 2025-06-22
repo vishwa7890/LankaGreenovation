@@ -1,69 +1,83 @@
-.admin-contact-list {
-  background: #f4f6f9;
-  min-height: 100vh;
-  padding-top: 30px;
-  font-family: "Segoe UI", sans-serif;
+.admin-contact-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-contact-heading {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
 }
 
 .contact-card {
-  max-width: 1150px;
-  margin: 0 auto;
-  background: #ffffff;
-  padding: 40px 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
-.contact-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.contact-header h2 {
-  font-size: 28px;
-  color: #333;
-  margin: 0;
-}
-
-.mail-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.contact-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-}
-
-.contact-table th,
-.contact-table td {
-  padding: 14px 18px;
-  border-bottom: 1px solid #e1e1e1;
-  text-align: left;
-}
-
-.contact-table th {
-  background-color: #f2f3f5;
-  color: #222;
-  font-weight: 600;
-}
-
-.contact-table tr:hover {
-  background-color: #fafafa;
-  transition: 0.3s;
-}
-
-.no-data {
-  text-align: center;
-  color: #999;
+  background-color: #f9f9f9;
   padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.contact-card:hover {
+  transform: scale(1.02);
+}
+
+.contact-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #444;
+}
+
+.contact-email,
+.contact-message {
   font-size: 16px;
+  margin-top: 8px;
+  color: #666;
+}
+
+/* ✅ Mobile Responsive */
+@media only screen and (max-width: 768px) {
+  .admin-contact-heading {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .contact-card {
+    padding: 15px;
+  }
+
+  .contact-name {
+    font-size: 18px;
+  }
+
+  .contact-email,
+  .contact-message {
+    font-size: 14px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .admin-contact-container {
+    padding: 10px;
+  }
+
+  .contact-card {
+    padding: 12px;
+  }
+
+  .admin-contact-heading {
+    font-size: 20px;
+  }
+
+  .contact-name {
+    font-size: 16px;
+  }
+
+  .contact-email,
+  .contact-message {
+    font-size: 13px;
+  }
 }

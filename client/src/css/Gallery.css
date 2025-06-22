@@ -96,22 +96,18 @@
 }
 
 .modal-caption {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left; /* Text starts from the left */
-    margin-top: 10px;
-    color: #333;
-    position: absolute;
-    right: 400px; /* Position on the right side */
-    top: 50%;
-    transform: translateY(-50%); /* Center vertically */
-    width: 200px; /* Set a fixed width to control text wrapping */
-    background: rgba(255, 255, 255, 0.8); /* Optional: Slight background for readability */
-    padding: 5px 10px;
-    border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 15px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  width: 100%;
+  position: static;
+  transform: none;
 }
-
-
 
 .close-button {
     position: absolute;
@@ -130,9 +126,26 @@
     background: darkred;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-    .gallery-slider {
-        width: 95%;
-    }
+  .gallery-slider {
+    width: 95%;
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .modal-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .modal-caption {
+    font-size: 16px;
+    margin-top: 10px;
+    text-align: center;
+    width: 100%;
+    position: static;
+  }
 }

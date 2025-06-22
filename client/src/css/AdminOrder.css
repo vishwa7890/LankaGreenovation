@@ -192,4 +192,89 @@
 
 .clear-filter-btn:hover {
   background-color: #c82333;
+}/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .admin-order-container {
+    padding: 15px;
+  }
+
+  .admin-order-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .admin-order-card {
+    flex-direction: row; /* ✅ Keep row layout on mobile */
+    flex-wrap: wrap;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .admin-order-left,
+  .admin-order-right {
+    flex: 1 1 48%;
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .admin-order-left p,
+  .admin-order-right p {
+    font-size: 13px;
+  }
+
+  .admin-order-product-info {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 10px;
+  }
+
+  .admin-order-product-info img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .admin-order-product-info div {
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .admin-order-shipping-address {
+    font-size: 13px;
+  }
+
+  .admin-order-update-btn {
+    font-size: 14px;
+    padding: 8px 12px;
+    width: auto;
+  }
+
+  .admin-order-filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .filter-group {
+    flex: 1 1 45%;
+    min-width: 150px;
+  }
+
+  .filter-input {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .clear-filter-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+    width: auto;
+    margin-top: 0;
+  }
+
+  .admin-order-right h3,
+  .admin-order-left h3 {
+    font-size: 16px;
+  }
 }

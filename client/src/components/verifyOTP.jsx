@@ -118,6 +118,7 @@ const VerifyOTP = () => {
                 key={index}
                 type="text"
                 inputMode="numeric"
+                pattern="\d*"
                 maxLength="1"
                 className="form-control text-center"
                 style={{ width: "40px", fontSize: "20px" }}

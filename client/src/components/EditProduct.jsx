@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/EditProduct.css";
+import {FaArrowLeft,
+} from "react-icons/fa";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -48,6 +50,9 @@ const EditProduct = () => {
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
+  const handleBack=()=>{
+    navigate("/ProductList");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +87,22 @@ const EditProduct = () => {
     >
       <div className="edit-product-container">
         <h2>Edit Product</h2>
+        <button
+          onClick={handleBack}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            marginBottom: "15px",
+            display: "flex",
+            alignItems: "center",
+            color: "#333",
+          }}
+        >
+          <FaArrowLeft style={{ marginRight: "5px" }} /> Back
+        </button>
         <form onSubmit={handleSubmit}>
           <input
             type="text"

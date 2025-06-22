@@ -128,3 +128,41 @@
     transform: translateY(0);
   }
 }
+@media (max-width: 768px) {
+  .edit-product-container {
+    margin: 20px 15px;
+    padding: 20px;
+    box-shadow: none;
+  }
+
+  .edit-product-container h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .edit-product-container input,
+  .edit-product-container textarea,
+  .edit-product-container select {
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+
+  .edit-product-container button {
+    font-size: 15px;
+    padding: 10px 18px;
+  }
+
+  .popup-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .popup-box p {
+    font-size: 14px;
+  }
+
+  .popup-box button {
+    font-size: 14px;
+    padding: 8px 20px;
+  }
+}

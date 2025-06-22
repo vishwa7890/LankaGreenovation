@@ -3,6 +3,8 @@ import axios from "axios";
 import "../css/UserOrder.css"; // 👈 Add this line to include CSS
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import {FaArrowLeft,
+} from "react-icons/fa";
 
 const UserOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -10,7 +12,7 @@ const UserOrder = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const goToHome = () => {
+  const handleBack = () => {
     navigate("/");
   };  
   useEffect(() => {
@@ -47,10 +49,23 @@ const UserOrder = () => {
     }}
   >
     <div className="order-page">
+      <button
+                onClick={handleBack}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginBottom: "15px",
+                  display: "flex",
+                  alignItems: "center",
+                  color: "#333",
+                }}
+              >
+                <FaArrowLeft style={{ marginRight: "5px" }} /> Back
+              </button>
       <h2 className="order-title">🛍️ Your Orders</h2>
-      <button className="back-button" onClick={goToHome}>🏠 Back to Home</button>
-
-
       {loading && <p className="order-loading">Loading orders...</p>}
       {error && <p className="order-error">{error}</p>}
 
