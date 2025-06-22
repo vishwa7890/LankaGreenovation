@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/AddAddress.css";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
 
 const AddAddress = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +36,9 @@ const AddAddress = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+const handleBack=()=>{
+    navigate("/user/checkout");
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -86,6 +90,23 @@ const AddAddress = () => {
     >
       <ToastContainer />
       <div className="add-address-card">
+        <button
+                onClick={handleBack}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginBottom: "15px",
+                  display: "flex",
+                  alignItems: "center",
+                  color: "#333",
+                }}
+              >
+                <FontAwesomeIcon icon={faArrowLeft}
+style={{ marginRight: "5px" }} /> Back
+              </button>
         <h2 className="add-address-title">Add Address</h2>
 
         <form className="add-address-form" onSubmit={handleSubmit}>

@@ -9,7 +9,7 @@ const Navbar = () => {
   const [moreDropdown, setMoreDropdown] = useState(false);
 
   return (
-    <nav className="custom-navbar navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="custom-navbar navbar navbar-expand-lg navbar-light bg-light sticky-top">
       <div className="container">
         <Link className="custom-navbar-brand d-flex align-items-center" to="/">
           <img

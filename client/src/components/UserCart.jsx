@@ -47,7 +47,7 @@ const UserCart = () => {
   }, []);
 
   const handleViewProduct = (id) => navigate(`/user/product/${id}`);
-  const handleBack = () => navigate(-1);
+  const handleBack = () => navigate("/user/productlist");
   const handleCheckout = () => navigate("/user/checkout");
 
   const handleRemoveProduct = async (id) => {
@@ -159,7 +159,7 @@ const UserCart = () => {
                         className="remove-btn"
                         onClick={() => handleRemoveProduct(product._id)}
                       >
-                        <FaTrash /> 
+                        
                       </button>
                     </div>
                     <div className="quantity-controls">

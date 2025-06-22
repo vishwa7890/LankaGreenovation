@@ -198,14 +198,7 @@ const AdminOrder = () => {
                           />
                           <div>
                             <p><strong>Product:</strong> {product.productId.name}</p>
-                            <strong>Description:</strong>
-                            <ul>
-                              {product.productId.shortDescription
-                                .split('.')
-                                .map((point, index) =>
-                                  point.trim() ? <li key={index}>{point.trim()}.</li> : null
-                                )}
-                            </ul>
+                            
                             <p><strong>Price:</strong> ₹{product.productId.price}</p>
                             <p><strong>Quantity:</strong> {product.quantity}</p>
                           </div>

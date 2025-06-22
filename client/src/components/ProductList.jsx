@@ -115,7 +115,7 @@ const ProductList = () => {
                     <strong>Brand:</strong> {product.brand}
                   </p>
                   <p className="product-list-card-text">
-                    <strong>Price:</strong> ${product.price}
+                    <strong>Price:</strong> ₹{product.price}
                   </p>
                   <p className="product-list-card-text">
                     <strong>Status:</strong> {product.stockStatus}

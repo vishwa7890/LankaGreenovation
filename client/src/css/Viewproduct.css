@@ -316,3 +316,106 @@
   font-weight: 500;
   color: #333;
 }
+/* ----------------- Responsive Design ----------------- */
+@media (max-width: 768px) {
+  .view-product-container {
+    flex-direction: column;
+    padding: 20px;
+    gap: 30px;
+  }
+
+  .main-img {
+    height: auto;
+    max-height: 300px;
+  }
+
+  .thumbnail-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .thumb {
+    width: 60px;
+    height: 60px;
+  }
+
+  .product-right {
+    padding: 20px;
+  }
+
+  .product-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .product-right p {
+    font-size: 14px;
+  }
+
+  .right-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .right-thumbnail-preview {
+    margin-top: 20px;
+  }
+
+  .specs-tech-section {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .specs-table,
+  .tech-table {
+    padding: 16px;
+  }
+
+  .product-details-table td {
+    font-size: 14px;
+  }
+
+  .comment-title {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .comment-textarea {
+    font-size: 14px;
+  }
+
+  .submit-comment-btn {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .comment-card {
+    padding: 16px;
+  }
+
+  .star {
+    font-size: 22px;
+  }
+
+  .cart-btn,
+  .outofstock-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .rating-label {
+    font-size: 14px;
+  }
+
+  .comment-body {
+    font-size: 14px;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+}
