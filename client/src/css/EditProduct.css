@@ -1,3 +1,4 @@
+/* Container */
 .edit-product-container {
   max-width: 650px;
   margin: 40px auto;
@@ -6,25 +7,58 @@
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
   font-family: "Segoe UI", sans-serif;
-  animation: slideFade 0.8s ease-in-out;
 }
 
-.edit-product-container h2 {
-  color: #2e7d32; /* dark green */
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 24px;
-}
-
-.edit-product-container form {
+/* Header section with back button and title */
+.edit-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
+/* Title */
+.edit-header h2 {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 24px;
+  color: #2e7d32;
+  margin: 0;
+}
+
+/* Back button styling */
+.back-button {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Back button icon */
+.back-button svg {
+  margin-right: 6px;
+}
+
+/* Form layout */
+.edit-product-container form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Inputs, selects, and textareas */
 .edit-product-container input,
 .edit-product-container textarea,
 .edit-product-container select {
-  margin-bottom: 16px;
   padding: 12px 14px;
   border: 1px solid #a5d6a7; /* soft green border */
   border-radius: 6px;
@@ -34,23 +68,26 @@
   transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
+/* Placeholder styling */
 .edit-product-container input::placeholder,
 .edit-product-container textarea::placeholder {
-  color: #66bb6a; /* green placeholder */
+  color: #66bb6a;
 }
 
+/* Focus effect */
 .edit-product-container input:focus,
 .edit-product-container textarea:focus,
 .edit-product-container select:focus {
   outline: none;
-  border-color: #43a047; /* green border on focus */
+  border-color: #43a047;
   background-color: #ffffff;
   box-shadow: 0 0 4px rgba(67, 160, 71, 0.4);
 }
 
-.edit-product-container button {
+/* Submit button */
+.edit-product-container button[type="submit"] {
   padding: 12px 20px;
-  background-color: #2e7d32; /* dark green */
+  background-color: #2e7d32;
   color: white;
   border: none;
   border-radius: 6px;
@@ -60,84 +97,94 @@
   transition: background-color 0.3s ease;
 }
 
-.edit-product-container button:hover {
-  background-color: #1b5e20; /* darker green */
-}
-
-.edit-product-container p {
-  text-align: center;
-  margin-top: 18px;
-  color: #2e7d32;
-  font-weight: 500;
-}
-
-/* Popup */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.popup-box {
-  background: #ffffff;
-  padding: 24px 32px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-}
-
-.popup-box p {
-  margin-bottom: 16px;
-  color: #333333;
-  font-size: 16px;
-}
-
-.popup-box button {
-  background-color: #2e7d32;
-  border: none;
-  padding: 10px 24px;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 15px;
-  transition: background-color 0.3s ease;
-}
-
-.popup-box button:hover {
+/* Hover effect */
+.edit-product-container button[type="submit"]:hover {
   background-color: #1b5e20;
 }
 
-/* Animation */
-@keyframes slideFade {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
+/* Image previews */
+.file-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.file-preview-item {
+  position: relative;
+}
+
+.file-preview-item img {
+  height: 80px;
+  width: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid #90ee90;
+}
+
+/* Remove button */
+.remove-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+.remove-btn:hover {
+  background-color: #cc0000;
+}
+
+/* Responsive Layout for Tablets and Larger Screens */
+@media (min-width: 768px) {
+  .edit-product-container {
+    max-width: 900px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .edit-product-container form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .edit-product-container form textarea,
+  .edit-product-container form select,
+  .edit-product-container form button {
+    grid-column: span 2;
+  }
+
+  .edit-product-container button[type="submit"] {
+    justify-self: center;
   }
 }
-@media (max-width: 768px) {
+
+/* Responsive for Small Devices */
+@media (max-width: 600px) {
   .edit-product-container {
     margin: 20px 15px;
     padding: 20px;
     box-shadow: none;
   }
 
-  .edit-product-container h2 {
+  .edit-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .edit-header h2 {
+    text-align: left;
+    margin-top: 10px;
     font-size: 20px;
-    margin-bottom: 20px;
+  }
+
+  .back-button {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
   }
 
   .edit-product-container input,
@@ -147,22 +194,8 @@
     padding: 10px 12px;
   }
 
-  .edit-product-container button {
+  .edit-product-container button[type="submit"] {
     font-size: 15px;
     padding: 10px 18px;
-  }
-
-  .popup-box {
-    width: 90%;
-    padding: 20px;
-  }
-
-  .popup-box p {
-    font-size: 14px;
-  }
-
-  .popup-box button {
-    font-size: 14px;
-    padding: 8px 20px;
   }
 }

@@ -95,18 +95,18 @@
 }/* ====== HERO / BANNER SECTION (Swiper + Images) ====== */
 @media (max-width: 768px) {
   .swiper-container {
-    height: 40vh;
+    height: 20vh;
   }
 
   .swiper-slide img,
   .hero-img {
     width: 100% !important;
-    height: 35vh !important;
+    height: 20vh !important;
     object-fit: cover;
   }
 
   .hero {
-    min-height: 40vh !important;
+    min-height: 20vh !important;
   }
 }
 
@@ -118,7 +118,7 @@
 
   #about img {
     max-height: 200px !important;
-    width: 100%;
+    width: 50%;
     margin-bottom: 20px;
   }
 

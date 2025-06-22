@@ -132,6 +132,16 @@
   object-fit: cover;
   display: block;
 }
+.user-out-btn {
+  background-color: #ccc;
+  color: #555;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed;
+  font-weight: bold;
+}
+
 
 /* Animations */
 @keyframes fadeIn {
@@ -169,6 +179,9 @@
 
 /* --- Responsive Enhancements --- */
 @media (max-width: 768px) {
+  .hero-section{
+    height: 20vh;
+  }
   .user-products-container {
     padding: 20px;
   }
@@ -211,12 +224,12 @@
   }
 
    .hero-video {
-    height: 30vh;
+    height: 20vh;
     object-fit: cover;
   }
 
   .hero-section {
-    height: auto;
+    height: 20vh;
   }
 }
 
@@ -226,7 +239,7 @@
   }
 
   .user-product-grid {
-    grid-template-columns: repeat(2, 1fr); /* Changed from 1fr to 2 cols */
+    grid-template-columns: repeat(2, 1fr); 
   }
 
   .user-product-name {

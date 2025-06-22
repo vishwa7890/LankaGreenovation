@@ -84,13 +84,26 @@ const UserProducts = () => {
                   <p><strong>Status:</strong> {product.stockStatus}</p>
 
                   <div className="user-product-buttons">
-                    <button className="user-add-btn" onClick={() => handleAddCart(product._id)}>
-                      Add to Cart
-                    </button>
-                    <button className="user-view-btn" onClick={() => handleViewProduct(product._id)}>
-                      View Product
-                    </button>
-                  </div>
+                  {product.stockStatus === "In Stock" ? (
+                    <>
+                      <button className="user-add-btn" onClick={() => handleAddCart(product._id)}>
+                        Add to Cart
+                      </button>
+                      <button className="user-view-btn" onClick={() => handleViewProduct(product._id)}>
+                        View Product
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="user-out-btn" disabled>
+                        Out of Stock
+                      </button>
+                      <button className="user-view-btn" onClick={() => handleViewProduct(product._id)}>
+                        View Product
+                      </button>
+                    </>
+                  )}
+                </div>
                 </div>
               ))}
             </div>

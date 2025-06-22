@@ -157,7 +157,7 @@ const ViewProduct = () => {
               </ul>
 
               <div className="cart-actions">
-                {product.availablestock === 0 ? (
+                {product.availablestock === 0 || product.stockStatus === "Out of Stock"? (
                   <button className="outofstock-btn" disabled>
                     Out of Stock
                   </button>

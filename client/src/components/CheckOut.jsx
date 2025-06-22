@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../css/CheckOut.css";
+import {
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const CheckOut = () => {
   const [products, setProducts] = useState([]);
@@ -14,7 +17,7 @@ const CheckOut = () => {
   const handleAdd = () => {
     navigate("/user/addadress");
   };
-  const handleBack = () => navigate(-1);
+  const handleBack = () => navigate("/user/cart");
   useEffect(() => {
     axios.get("http://localhost:5000/user/get-address", { withCredentials: true })
       .then(res => {
@@ -102,9 +105,22 @@ const CheckOut = () => {
       
       <div className="checkout-container">
         {/* Back Button */}
-      <button onClick={handleBack} className="back-btn">
-        ← Back
-      </button>
+     <button
+               onClick={handleBack}
+               style={{
+                 background: "none",
+                 border: "none",
+                 fontSize: "16px",
+                 fontWeight: "bold",
+                 cursor: "pointer",
+                 marginBottom: "15px",
+                 display: "flex",
+                 alignItems: "center",
+                 color: "#333",
+               }}
+             >
+               <FaArrowLeft style={{ marginRight: "5px" }} /> Back
+             </button>
         <h2 className="title">Checkout</h2>
 
         <div className="section">

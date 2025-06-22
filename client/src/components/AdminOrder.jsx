@@ -134,82 +134,41 @@ const AdminOrder = () => {
           ) : (
             filteredOrders.map((order) => (
               <div key={order._id} className="admin-order-card">
-                <div className="admin-order-left">
-                  <p>
-                    <FaFingerprint /> <strong>Order ID:</strong> {order._id}
-                  </p>
-                  <p>
-                    <FaMoneyCheckAlt /> <strong>Total Price:</strong> ₹{order.totalPrice}
-                  </p>
-                  <p>
-                    <FaMoneyCheckAlt /> <strong>Payment:</strong>{" "}
-                    {order.paymentMethod} - {order.paymentStatus}
-                  </p>
-                  <p>
-                    <FaBox /> <strong>Order Status:</strong> {order.orderStatus}
-                  </p>
-                  <p>
-                    <FaCalendarAlt /> <strong>Placed On:</strong>{" "}
-                    {new Date(order.createdAt).toLocaleString("en-IN", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </p>
+ <div className="admin-order-summary">
+  <p>
+    <FaFingerprint /> <strong>Order ID:</strong> {order._id}
+  </p>
+  <p>
+    👤 <strong>Customer:</strong> {order.address?.fullName || "N/A"}
+  </p>
+  <p>
+    <FaMoneyCheckAlt /> <strong>Total Price:</strong> ₹{order.totalPrice}
+  </p>
+  <p>
+    <FaMoneyCheckAlt /> <strong>Payment:</strong> {order.paymentMethod} - {order.paymentStatus}
+  </p>
+  <p>
+    <FaBox /> <strong>Status:</strong> {order.orderStatus}
+  </p>
+  <p>
+    <FaCalendarAlt /> <strong>Placed On:</strong>{" "}
+    {new Date(order.createdAt).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })}
+  </p>
 
-                  <h3>
-                    <FaShippingFast /> Shipping Address
-                  </h3>
-                  <div className="admin-order-shipping-address">
-                    {order.address ? (
-                      <p>
-                        {order.address.fullName}, {order.address.addressLine1},{" "}
-                        {order.address.city}, {order.address.state} -{" "}
-                        {order.address.postalCode}, {order.address.country}
-                        <br />
-                        <FaPhoneAlt /> <strong>Phone:</strong> {order.address.phone}
-                      </p>
-                    ) : (
-                      <p>Address not available.</p>
-                    )}
-                  </div>
+  <button
+    className="admin-order-update-btn"
+    onClick={() => handleUpdate(order._id)}
+  >
+    <FaEdit style={{ marginRight: "5px" }} />
+    View / Update
+  </button>
+</div>
+</div>
 
-                  <button
-                    className="admin-order-update-btn"
-                    onClick={() => handleUpdate(order._id)}
-                  >
-                    <FaEdit style={{ marginRight: "5px" }} />
-                    Update
-                  </button>
-                </div>
-
-                <div className="admin-order-right">
-                  <h3>🛒 Products</h3>
-                  <div className="admin-order-product-list">
-                    {order.products.length > 0 ? (
-                      order.products.map((product) => (
-                        <div key={product._id} className="admin-order-product-info">
-                          <img
-                            src={`http://localhost:5000/${product.productId.thumbnail}`}
-                            alt={product.productId.name}
-                          />
-                          <div>
-                            <p><strong>Product:</strong> {product.productId.name}</p>
-                            
-                            <p><strong>Price:</strong> ₹{product.productId.price}</p>
-                            <p><strong>Quantity:</strong> {product.quantity}</p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No products found.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
             ))
           )}
         </div>

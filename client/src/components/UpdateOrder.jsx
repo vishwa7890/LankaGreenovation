@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/UpdateOrder.css";
-
 const UpdateOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +62,11 @@ const UpdateOrder = () => {
       }}
     >
       <div className="update-order-container">
+         {/* 🔙 Back Button */}
+      <button className="back-btn" onClick={() => navigate("/admin/orders")}>
+  Back 
+</button>
+
         <h2 className="update-order-heading">🛠️ Update Order Details</h2>
 
         {order ? (

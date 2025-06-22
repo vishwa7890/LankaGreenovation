@@ -190,24 +190,98 @@ router.get('/get-product', verifyAdmin, async (req, res) => {
   }
 });
 
-router.put('/edit-product/:id', verifyAdmin, async (req, res) => {
+router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
   try {
-      const { name, brand, price, shortDescription, detailedDescription, stockStatus } = req.body;
+    // Image update handling
+    const imagePaths = req.files?.images ? req.files.images.map(file => file.path) : undefined;
+    const thumbnailPath = req.files?.thumbnail ? req.files.thumbnail[0].path : undefined;
 
-      const updatedProduct = await Product.findByIdAndUpdate(
-          req.params.id,
-          { name, brand, price, shortDescription, detailedDescription, stockStatus }, 
-          { new: true, runValidators: true } 
-      );
+    const {
+      name,
+      brand,
+      price,
+      availablestock,
+      shortDescription,
+      detailedDescription,
+      stockStatus,
 
-      if (!updatedProduct) {
-          return res.status(404).json({ message: "Product not found" });
-      }
+      // specs fields
+      itemForm,
+      productBenefits,
+      scent,
+      skinType,
+      netQuantity,
+      numberOfItems,
+      recommendedUses,
+      upc,
 
-      res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+      // technical details
+      manufacturer,
+      countryOfOrigin,
+      itemPartNumber,
+      productDimensions,
+      asin,
+
+      // additional info
+      itemWeight,
+      itemDimensions,
+      bestSellersRank,
+      rankInFaceMasks,
+    } = req.body;
+
+    // Build the update object
+    const updateFields = {
+      name,
+      brand,
+      price,
+      availablestock,
+      shortDescription,
+      detailedDescription,
+      stockStatus,
+      ...(imagePaths && { images: imagePaths }),
+      ...(thumbnailPath && { thumbnail: thumbnailPath }),
+
+      specs: {
+        itemForm,
+        productBenefits,
+        scent,
+        skinType,
+        netQuantity,
+        numberOfItems,
+        recommendedUses,
+        upc,
+      },
+      technicalDetails: {
+        manufacturer,
+        countryOfOrigin,
+        itemPartNumber,
+        productDimensions,
+        asin,
+      },
+      additionalInfo: {
+        itemWeight,
+        itemDimensions,
+        netQuantity, // optional repetition
+        bestSellersRank,
+        rankInFaceMasks,
+      },
+    };
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+
   } catch (error) {
-      console.error("Error updating product:", error);
-      res.status(500).json({ message: "Error updating product", error: error.message });
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Error updating product", error: error.message });
   }
 });
 

@@ -11,7 +11,6 @@ import "react-toastify/dist/ReactToastify.css";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -46,9 +45,7 @@ const ForgotPassword = () => {
                 required
               />
             </div>
-
             <button type="submit" className="signupBtn">Send OTP</button>
-
             <p className="loginLink">
               Remembered your password? <a href="/user/login">Login</a>
             </p>

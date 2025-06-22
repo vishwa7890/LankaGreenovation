@@ -2,6 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import '../css/PaymentComponent.css';
+import { FaArrowLeft } from 'react-icons/fa';
+
 
 const PaymentComponent1 = () => {
   const location = useLocation();
@@ -38,71 +41,53 @@ const PaymentComponent1 = () => {
     }
   };
 
-  return (
-    <div style={{ padding: '40px', textAlign: 'center' }}>
-      <h2>Order Summary</h2>
-      <table
-        style={{
-          width: '80%',
-          margin: 'auto',
-          borderCollapse: 'collapse',
-          marginBottom: '20px',
-        }}
-      >
+ return (
+    <div className="payment-wrapper">
+      <div className="payment-card">
+        {/* Back Button on Left */}
+    <button className="back-btn" onClick={() => navigate(-1)}>
+      <FaArrowLeft style={{ marginRight: "6px" }} /> Back
+    </button>
+      <h2 className="payment-header">Order Summary</h2>
+      <table className="payment-table">
         <thead>
-          <tr style={{ backgroundColor: '#f2f2f2' }}>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>#</th>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>Image</th>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>Product Name</th>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>Quantity</th>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>Price (₹)</th>
-            <th style={{ padding: '10px', border: '1px solid #ccc' }}>Subtotal (₹)</th>
+          <tr>
+            <th>No</th>
+            <th>Image</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price (₹)</th>
+            <th>Subtotal (₹)</th>
           </tr>
         </thead>
         <tbody>
           {products.map((p, index) => (
-            <tr key={p.productId._id || p.productId}>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>{index + 1}</td>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>
+            <tr key={p.productId._id}>
+              <td>{index + 1}</td>
+              <td>
                 <img
-                  src={`http://localhost:5000/${p.productId.thumbnail.replace(/\\/g, "/")}`}
-                  alt="product"
-                  width="100"
-                  height="100"
-                  style={{ objectFit: 'cover' }}
+                  src={`http://localhost:5000/${p.productId.thumbnail.replace(/\\/g, '/')}`}
+                  alt=""
                 />
               </td>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>{p.productId.name}</td>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>{p.quantity}</td>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>₹{p.price}</td>
-              <td style={{ padding: '10px', border: '1px solid #ccc' }}>
-                ₹{p.price * p.quantity}
-              </td>
+              <td>{p.productId.name}</td>
+              <td>{p.quantity}</td>
+              <td>₹{p.price}</td>
+              <td>₹{p.price * p.quantity}</td>
             </tr>
           ))}
-          <tr style={{ backgroundColor: '#f9f9f9' }}>
-            <td colSpan="4" style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>
-              Total:
-            </td>
-            <td colSpan="2" style={{ padding: '10px', fontWeight: 'bold' }}>₹{amount}</td>
+          <tr className="payment-summary">
+            <td colSpan="4" style={{ textAlign: 'right' }}>Total:</td>
+            <td colSpan="2">₹{amount}</td>
           </tr>
         </tbody>
       </table>
-
-      <button
-        onClick={handlePayment}
-        style={{
-          padding: '10px 20px',
-          fontSize: '18px',
-          backgroundColor: '#4CAF50',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Order Now
+      <div className="pay-container">
+      <button className="pay-btn" onClick={handlePayment}>
+        Order Now ₹{amount}
       </button>
+      </div>
+    </div>
     </div>
   );
 };

@@ -54,7 +54,7 @@ const Home = () => {
       <section id="about" className="container py-5 bg-light rounded">
         <div className="text-center mb-4">
           <h2 className="fw-bold text-success" data-aos="fade-right">About Us</h2>
-          <p style={{ textAlign: "justify" }}>
+          <p  className="text-muted" style={{ textAlign: "justify" }}>
             Founded by visionary entrepreneur <b>Mrs. R. Ananthi</b> and co-founded by <b>Dr. S. Karthikumar</b>, we specialize in high-quality
             <b> cosmetic bioproducts, algal bioproducts, fish feed, liquid biofertilizers, and solid biofertilizers</b>.
           </p>
