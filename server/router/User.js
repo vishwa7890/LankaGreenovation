@@ -901,7 +901,7 @@ router.post("/place-order", verifyUser, async (req, res) => {
 });
 
 
-router.post("/verify-payment",verifyUser, async (req, res) => {
+/*router.post("/verify-payment",verifyUser, async (req, res) => {
   try {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature,addressId,
     paymentMethod,
@@ -1084,7 +1084,7 @@ router.post("/verify-payment",verifyUser, async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Failed to verify payment", error: error.message });
   }
-});
+});*/
 
 
 router.post('/forgot-password', async (req, res) => {
@@ -1341,4 +1341,411 @@ router.post('/contact',async (req, res) => {
     res.status(500).json({ error: "Something went wrong. Please try again later." });
   }
 });
+
+router.post("/test1", async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const options = {
+      amount: amount * 100, 
+      currency: "INR",
+      receipt: "receipt_" + Date.now(),
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.status(200).json({ order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error creating Razorpay order" });
+  }
+});
+
+
+const Payment = require("../model/Payment"); 
+
+router.post("/test2",verifyUser, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
+
+    const sign = crypto
+      .createHmac("sha256", process.env.KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (sign === razorpay_signature) {
+      
+      const newPayment = new Payment({
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        amount:500,
+        status: "Paid"
+      });
+
+      await newPayment.save();
+
+      return res.status(200).json({
+        message: "Payment verified and stored successfully",
+        payment: newPayment
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid signature" });
+    }
+  } catch (err) {
+    console.error("Verification Error:", err);
+    res.status(500).json({ message: "Payment verification failed" });
+  }
+});
+
+
+router.post("/create-order", verifyUser, async (req, res) => {
+  try {
+    const { products, totalPrice, addressId, paymentMethod, razorpayOrderId } = req.body;
+    const userId = req.user.id;
+
+    const newOrder = new Order({
+      userId,
+      razorpayOrderId,
+      products,
+      address: addressId,
+      totalPrice,
+      paymentMethod,
+      paymentStatus: "Paid",
+    });
+
+    await newOrder.save();
+    const user = await User.findById(newOrder.userId);
+
+    await newOrder.populate("products.productId");
+
+    const mailOptions = {
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: 'Payment Successful – Order Confirmed!',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Payment Confirmation</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Header with logo and function name -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Payment Confirmation</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Greeting & Confirmation -->
+        <h2 style="text-align: center; color: #333;">Payment Successful!</h2>
+        <p style="text-align: center; color: #555;">Dear <strong>${user.username}</strong>,</p>
+        <p style="text-align: center; color: #555;">We’ve received your payment and your order has been confirmed.</p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${newOrder.totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          Thank you for shopping with us!  
+        </p>
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          For help, contact <strong>lankagreenovation@gmail.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+    transporter.sendMail(mailOptions);
+
+    const mailOptions2 = {
+  from: process.env.EMAIL,
+  to: process.env.EMAIL,
+  subject: 'Your User Placed Order',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>User Order Alert</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Logo and Function Name in Table -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Admin Alert -->
+        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
+        <p style="text-align: center; color: #555;">
+          Your user <strong>${user.username}</strong> has placed a new order.
+        </p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          This is an automated notification. No action is required.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+    
+    transporter.sendMail(mailOptions2);
+
+    await Cart.deleteMany({ userId });
+    res.status(201).json({ message: "Order placed successfully", order: newOrder });
+  } catch (err) {
+    console.error("Order Creation Failed:", err);
+    res.status(500).json({ message: "Failed to place order" });
+  }
+});
+
+router.post("/create-order-cod", verifyUser, async (req, res) => {
+  try {
+    const { products, totalPrice, addressId, paymentMethod,  } = req.body;
+    const userId = req.user.id;
+
+    const newOrder = new Order({
+      userId,
+      products,
+      address: addressId,
+      totalPrice,
+      paymentMethod,
+      paymentStatus: "Pending",
+    });
+
+    await newOrder.save();
+    const user = await User.findById(newOrder.userId);
+
+    await newOrder.populate("products.productId");
+
+    const mailOptions = {
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: 'Order Confirmed!',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Order Confirmation</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Header with logo and function name -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Confirmation</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Greeting & Confirmation -->
+        <h2 style="text-align: center; color: #333;">Order Successful!</h2>
+        <p style="text-align: center; color: #555;">Dear <strong>${user.username}</strong>,</p>
+        <p style="text-align: center; color: #555;">Your order has been confirmed and is now being processed.</p>
+
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${newOrder.totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          Thank you for shopping with us!  
+        </p>
+        <p style="font-size: 12px; color: #888; text-align: center;">
+          For help, contact <strong>lankagreenovation@gmail.com</strong>.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+    transporter.sendMail(mailOptions);
+
+    const mailOptions2 = {
+  from: process.env.EMAIL,
+  to: process.env.EMAIL,
+  subject: 'Your User Placed Order',
+  html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>User Order Alert</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+
+        <!-- Logo and Function Name in Table -->
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 100px;">
+              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+            </td>
+            <td style="text-align: left; vertical-align: middle;">
+              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Admin Alert -->
+        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
+        <p style="text-align: center; color: #555;">
+          Your user <strong>${user.username}</strong> has placed a new order.
+        </p>
+
+        <!-- Order Summary -->
+        <div style="margin: 20px 0; color: #333;">
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
+          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        </div>
+
+        <!-- Product Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newOrder.products.map(product => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+          This is an automated notification. No action is required.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+};
+    
+    transporter.sendMail(mailOptions2);
+    await Cart.deleteMany({ userId });
+    res.status(201).json({ message: "Order placed successfully", order: newOrder });
+  } catch (err) {
+    console.error("Order Creation Failed:", err);
+    res.status(500).json({ message: "Failed to place order" });
+  }
+});
+
+
 module.exports=router;

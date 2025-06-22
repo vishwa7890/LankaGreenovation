@@ -27,6 +27,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ForgotPassword from './components/ForgotPassword';
 import AdminContactList from './components/AdminContactList';
+import PaymentComponent from './components/PaymentComponent';
+import PaymentComponent1 from './components/PaymentComponent1';
 
 
 
@@ -63,6 +65,10 @@ function App() {
         <Route path='/aboutus' element={<About/>} />
         <Route path='/user/forgotpassword' element={<ForgotPassword/>} />
         <Route path='/admin/contact' element={<AdminContactList/>} />
+        <Route path='user/pay' element={<PaymentComponent/>} />
+        <Route path='user/pay-cod' element={<PaymentComponent1/>} />
+
+        
         
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
