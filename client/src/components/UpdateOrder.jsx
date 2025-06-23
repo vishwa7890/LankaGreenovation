@@ -42,7 +42,8 @@ const UpdateOrder = () => {
         { orderStatus },
         { withCredentials: true }
       );
-
+      console.log(orderStatus);
+      
       toast.success("Order status updated successfully!");
       setTimeout(() => navigate("/admin/orders"), 1500);
     } catch (error) {
@@ -94,7 +95,7 @@ const UpdateOrder = () => {
               <button
                 onClick={handleUpdate}
                 className="update-button"
-                disabled={["delivered", "cancelled", "user cancelled"].includes(orderStatus.toLowerCase())}
+                
               >
                 ✅ Update Order
               </button>

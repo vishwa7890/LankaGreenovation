@@ -372,6 +372,8 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
     }
 
     const { orderStatus } = req.body;
+    console.log(orderStatus);
+    
 
     // Find the order
     const order = await Order.findById(req.params.id);

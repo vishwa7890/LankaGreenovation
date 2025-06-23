@@ -1370,6 +1370,7 @@ router.post("/test2",verifyUser, async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
+      amount
     } = req.body;
 
     const sign = crypto
@@ -1382,7 +1383,7 @@ router.post("/test2",verifyUser, async (req, res) => {
       const newPayment = new Payment({
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
-        amount:500,
+        amount:amount,
         status: "Paid"
       });
 
