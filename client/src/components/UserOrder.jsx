@@ -38,6 +38,33 @@ const UserOrder = () => {
 
   fetchOrders();
 }, []);
+
+
+  const handleCancel = async (id) => {
+  const confirmCancel = window.confirm("Are you sure you want to cancel this order?");
+  if (!confirmCancel) return;
+
+  try {
+    const response = await axios.put(
+      'http://localhost:5000/user/cancel',
+      {
+        orderId: id
+      },
+      {
+        withCredentials: true
+      }
+    );
+    console.log(response.data); 
+    // Optional: show a success message or update UI
+  } catch (error) {
+    console.error('Error cancelling order:', error.response?.data || error.message);
+  }
+
+
+
+
+    
+  };
   return (
      <div>
     <Navbar /> 
@@ -130,6 +157,7 @@ const UserOrder = () => {
                       </div>
                     ))}
                   </div>
+                  <button onClick={()=>handleCancel(order._id)}>Cancel Order</button>
                 </div>
               </div>
             ))

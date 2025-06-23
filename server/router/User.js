@@ -1748,4 +1748,27 @@ router.post("/create-order-cod", verifyUser, async (req, res) => {
 });
 
 
+router.put("/cancel", verifyUser, async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    const updatedProduct = await Order.findByIdAndUpdate(
+      orderId,
+      { orderStatus: "Cancelled" },
+      { new: true } 
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Error updating product", error: error.message });
+  }
+});
+
+
 module.exports=router;
