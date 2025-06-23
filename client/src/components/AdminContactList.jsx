@@ -41,53 +41,39 @@ const AdminContactList = () => {
 
 
   return (
-    <div className="admin-contact-list">
-  <AdminNavbar />
-  <div className="contact-card">
-    <div className="contact-header">
-     
-      <h2>📩 Contact Messages</h2>
-    </div>
+  <div className="admin-contact-list">
+    <AdminNavbar />
+    <div className="admin-contact-container">
+      <h2 className="admin-contact-heading">📩 Contact Messages</h2>
 
-    {contacts.length === 0 ? (
-      <p className="no-data">No contact messages found.</p>
-    ) : (
-      <div className="table-wrapper">
-        <table className="contact-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Message</th>
-              <th>Submitted On</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((contact) => (
-              <tr key={contact._id}>
-                <td>{contact.name}</td>
-                <td>{contact.email}</td>
-                <td>{contact.message}</td>
-               <td>
-                {new Date(contact.createdAt).toLocaleString("en-US", {
+      {contacts.length === 0 ? (
+        <p className="no-data">No contact messages found.</p>
+      ) : (
+        <div className="contact-list">
+          {contacts.map((contact) => (
+            <div key={contact._id} className="contact-card">
+              <p className="contact-name">👤 {contact.name}</p>
+              <p className="contact-email">📧 {contact.email}</p>
+              <p className="contact-message">💬 {contact.message}</p>
+              <p className="contact-date">
+                🗓️ {new Date(contact.createdAt).toLocaleString("en-US", {
                   year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
+                  month: "short",
+                  day: "numeric",
                   hour: "numeric",
                   minute: "2-digit",
                   hour12: true,
                 })}
-              </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+    <ToastContainer />
   </div>
-</div>
+);
 
-  );
 };
 
 export default AdminContactList;

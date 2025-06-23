@@ -373,114 +373,110 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
 
     const { orderStatus } = req.body;
 
-    // Find the order first
+    // Find the order
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // If orderStatus is Processing, update product stock
+    // If status is "Processing", update stock
     if (orderStatus === "Processing") {
-      for (const productEntry of order.products) {
-        const productId = productEntry.productId;
-        const product = await Product.findById(productId);
-
+      for (const item of order.products) {
+        const product = await Product.findById(item.productId);
         if (!product) {
-          return res.status(404).json({ message: `Product ${productId} not found` });
+          return res.status(404).json({ message: `Product ${item.productId} not found` });
         }
 
-        // Decrement available stock by quantity ordered
-        product.availablestock -= productEntry.quantity;
+        product.availablestock -= item.quantity;
 
-        // If stock drops to 0 or below, set stockstatus to "Out of Stock"
         if (product.availablestock <= 0) {
-          product.availablestock = 0; // avoid negative stock
-          product.stockstatus = "Out of Stock";
+          product.availablestock = 0;
+          product.stockStatus = "Out of Stock";
         }
 
         await product.save();
       }
     }
 
-    // Update orderStatus in order
+    // Update order status
     order.orderStatus = orderStatus;
     const updatedOrder = await order.save();
 
-    // If status is Cancelled, send email to user and admin
+    // If order cancelled, send email
     if (orderStatus === "Cancelled") {
+      await updatedOrder.populate("products.productId");
       const user = await User.findById(updatedOrder.userId);
-     const productDetails = updatedOrder.products
-  .map(p => `- ${p.productId?.name || "Product"} (x${p.quantity})`)
-  .join("<br>");
 
-const userMailOptions = {
-  from: process.env.EMAIL,
-  to: user.email,
-  subject: 'Your Order Has Been Cancelled',
-  html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Order Cancelled</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+      const productDetails = updatedOrder.products.map(item => {
+        return `
+          <p>
+            <strong>Product:</strong> ${item.productId.name}<br />
+            <strong>Quantity:</strong> ${item.quantity}<br />
+            <strong>Price:</strong> ₹${item.price}
+          </p>
+          <hr />
+        `;
+      }).join("");
 
-        <!-- Logo and Function Name in Table -->
-        <table style="width: 100%; margin-bottom: 20px;">
-          <tr>
-            <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-            </td>
-            <td style="text-align: left; vertical-align: middle;">
-              <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
-            </td>
-          </tr>
-        </table>
+      const userMailOptions = {
+        from: process.env.EMAIL,
+        to: user.email,
+        subject: 'Your Order Has Been Cancelled',
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Order Cancelled</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+              <table style="width: 100%; margin-bottom: 20px;">
+                <tr>
+                  <td style="width: 100px;">
+                    <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+                  </td>
+                  <td style="text-align: left; vertical-align: middle;">
+                    <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
+                  </td>
+                </tr>
+              </table>
 
-        <!-- Title -->
-        <h2 style="text-align: center; color: #333;">Order Cancellation Confirmation</h2>
+              <h2 style="text-align: center; color: #333;">Order Cancellation Confirmation</h2>
 
-        <!-- Greeting -->
-        <p style="text-align: center; color: #555;">Hello <strong>${user.name}</strong>,</p>
-        <p style="text-align: center; color: #555;">
-          Your order has been cancelled. Below are your order details:
-        </p>
+              <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
+              <p style="text-align: center; color: #555;">
+                Your order has been cancelled. Below are your order details:
+              </p>
 
-        <!-- Order Summary -->
-        <div style="margin: 20px 0; color: #333;">
-          <p><strong>Order ID:</strong> ${updatedOrder.productId.name}</p>
-          <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
-        </div>
+              <div style="margin: 20px 0; color: #333;">
+                <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
+                <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
+              </div>
 
-        <!-- Product List -->
-        <div style="margin: 20px 0;">
-          <h4 style="color: #444;">Cancelled Products:</h4>
-          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #333;">
-            ${productDetails}
-          </div>
-        </div>
+              <div style="margin: 20px 0;">
+                <h4 style="color: #444;">Cancelled Products:</h4>
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #333;">
+                  ${productDetails}
+                </div>
+              </div>
 
-        <!-- Apology -->
-        <p style="text-align: center; color: #777; margin-top: 20px;">
-          We’re sorry for the inconvenience. If you have any questions, please reach out to our support team.
-        </p>
+              <p style="text-align: center; color: #777; margin-top: 20px;">
+                We’re sorry for the inconvenience. If you have any questions, please reach out to our support team.
+              </p>
 
-        <!-- Footer -->
-        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          For assistance, contact us at <strong>lankagreenovation@gmail.com</strong>.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
-};
-
+              <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+                For assistance, contact us at <strong>lankagreenovation@gmail.com</strong>.
+              </p>
+            </div>
+          </body>
+          </html>
+        `
+      };
 
       transporter.sendMail(userMailOptions, (err) => {
-        if (err) console.error("Failed to send cancellation email to user:", err);
+        if (err) console.error("Failed to send cancellation email:", err);
       });
     }
 
@@ -490,6 +486,8 @@ const userMailOptions = {
     res.status(500).json({ message: "Error updating order", error: error.message });
   }
 });
+
+
 
 
 

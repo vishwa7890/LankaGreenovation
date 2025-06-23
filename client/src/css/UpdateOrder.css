@@ -126,18 +126,26 @@ strong {
 .product-info {
   flex: 1;
   min-width: 180px;
+  text-align: left; /* Ensures left text alignment */
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; 
+  margin-left: 10px;/* Align items to the left */
 }
 
 .product-info p {
   margin-bottom: 10px;
   font-size: 14px;
   color: #555;
+  text-align: left;
 }
 
 .product-info strong {
   font-weight: bold;
   color: #333;
+  text-align: left;
 }
+
 .back-btn {
   background-color: #2e7d32;
   color: white;

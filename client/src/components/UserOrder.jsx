@@ -54,16 +54,12 @@ const UserOrder = () => {
         withCredentials: true
       }
     );
+    setTimeout(() => window.location.reload(), 1000);
     console.log(response.data); 
     // Optional: show a success message or update UI
   } catch (error) {
     console.error('Error cancelling order:', error.response?.data || error.message);
-  }
-
-
-
-
-    
+  } 
   };
   return (
      <div>
@@ -157,7 +153,13 @@ const UserOrder = () => {
                       </div>
                     ))}
                   </div>
-                  <button onClick={()=>handleCancel(order._id)}>Cancel Order</button>
+                 <button
+                  className="cancel-button"
+                  disabled={["delivered", "cancelled", "user cancelled"].includes(order.orderStatus.toLowerCase())}
+                  onClick={() => handleCancel(order._id)}
+                >
+                  Cancel Order
+                </button>
                 </div>
               </div>
             ))

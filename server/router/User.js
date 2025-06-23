@@ -1752,23 +1752,154 @@ router.put("/cancel", verifyUser, async (req, res) => {
   const { orderId } = req.body;
 
   try {
-    const updatedProduct = await Order.findByIdAndUpdate(
+    // Update order
+    const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
-      { orderStatus: "Cancelled" },
-      { new: true } 
-    );
+      { orderStatus: "User Cancelled" },
+      { new: true }
+    ).populate("products.productId");
 
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+    const user = await User.findById(updatedOrder.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const productDetails = updatedOrder.products.map(item => `
+      <p>
+        <strong>Product:</strong> ${item.productId.name}<br/>
+        <strong>Quantity:</strong> ${item.quantity}<br/>
+        <strong>Price:</strong> ₹${item.price}
+      </p>
+      <hr/>
+    `).join("");
+
+    // ✅ Email to USER
+    const userMailOptions = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: 'Order Cancelled Successfully',
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Order Cancelled</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+          <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <table style="width: 100%; margin-bottom: 20px;">
+              <tr>
+                <td style="width: 100px;">
+                  <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+                </td>
+                <td style="text-align: left; vertical-align: middle;">
+                  <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
+                </td>
+              </tr>
+            </table>
+
+            <h2 style="text-align: center; color: #333;">Order Cancellation Confirmation</h2>
+            <p style="text-align: center;">Hi <strong>${user.username}</strong>,</p>
+            <p style="text-align: center;">Your order has been cancelled successfully. Details are below:</p>
+
+            <div style="margin-top: 20px;">
+              <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
+              <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <h4>Cancelled Products:</h4>
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
+                ${productDetails}
+              </div>
+            </div>
+
+            <p style="text-align: center; color: #777; margin-top: 20px;">
+              If you have any concerns, feel free to reach out to our support team.
+            </p>
+
+            <p style="text-align: center; font-size: 12px; color: #888; margin-top: 30px;">
+              Lanka Greenovation | lankagreenovation@gmail.com
+            </p>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    // ✅ Email to ADMIN
+    const adminMailOptions = {
+      from: process.env.EMAIL,
+      to: process.env.EMAIL, // or process.env.ADMIN_EMAIL
+      subject: `Order Cancelled by ${user.username} | Order ID: ${updatedOrder._id}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>User Cancelled Order</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+          <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <table style="width: 100%; margin-bottom: 20px;">
+              <tr>
+                <td style="width: 100px;">
+                  <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+                </td>
+                <td style="text-align: left; vertical-align: middle;">
+                  <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled (User)</span>
+                </td>
+              </tr>
+            </table>
+
+            <h2 style="text-align: center; color: #333;">Order Cancelled by User</h2>
+            <p style="text-align: center;"><strong>${user.username}</strong> has cancelled their order.</p>
+
+            <div style="margin-top: 20px;">
+              <p><strong>User Email:</strong> ${user.email}</p>
+              <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
+              <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <h4>Cancelled Products:</h4>
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
+                ${productDetails}
+              </div>
+            </div>
+
+            <p style="text-align: center; font-size: 12px; color: #888; margin-top: 30px;">
+              Auto-generated admin copy | Lanka Greenovation
+            </p>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    // Send user and admin emails
+    transporter.sendMail(userMailOptions, (err) => {
+      if (err) console.error("Error sending user email:", err);
+    });
+
+    transporter.sendMail(adminMailOptions, (err) => {
+      if (err) console.error("Error sending admin email:", err);
+    });
+
+    res.status(200).json({ message: "Order cancelled and emails sent", order: updatedOrder });
 
   } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ message: "Error updating product", error: error.message });
+    console.error("Error cancelling order:", error);
+    res.status(500).json({ message: "Error cancelling order", error: error.message });
   }
 });
+
 
 
 module.exports=router;

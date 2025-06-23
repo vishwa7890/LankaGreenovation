@@ -82,17 +82,23 @@ const UpdateOrder = () => {
                 value={orderStatus}
                 onChange={(e) => setOrderStatus(e.target.value)}
                 className="status-select"
+                disabled={["delivered", "cancelled", "user cancelled"].includes(orderStatus.toLowerCase())}
               >
                 <option value="Pending">Pending</option>
                 <option value="Processing">Processing</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Delivered">Delivered</option>
                 <option value="Cancelled">Cancelled</option>
+                <option value="User Cancelled">User Cancelled</option>
               </select>
-
-              <button onClick={handleUpdate} className="update-button">
+              <button
+                onClick={handleUpdate}
+                className="update-button"
+                disabled={["delivered", "cancelled", "user cancelled"].includes(orderStatus.toLowerCase())}
+              >
                 ✅ Update Order
               </button>
+
             </div>
 
             <hr className="section-divider" />

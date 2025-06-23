@@ -42,7 +42,8 @@ const ViewProduct = () => {
     fetchProduct();
     fetchComments();
   }, [id]);
-
+  console.log(comments);
+  
   const handleAddCart = async (productId) => {
     try {
       const response = await axios.post(
@@ -315,6 +316,9 @@ const ViewProduct = () => {
             </span>
           </div>
           <div className="comment-body">
+            <div className="comment-text">
+              {comment.text}{" "}
+            </div>
             <div className="comment-rating">
               {"⭐".repeat(comment.rating)}{" "}
             </div>
