@@ -4,6 +4,14 @@ import "../css/UserOrder.css";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { FaArrowLeft } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faClock,
+  faSpinner,
+  faTruck,
+  faBoxOpen
+} from "@fortawesome/free-solid-svg-icons";
+
 
 const UserOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -124,27 +132,59 @@ const UserOrder = () => {
                       </p>
                     </div>
 
-                    {/* Order Tracker */}
-                    <div className="order-tracker">
-  <div
-    className="progress-line"
-    style={{
-      width: `calc(${(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}% - 15px)`
-    }}
-  ></div>
-
-  {["Pending", "Processing", "Shipped", "Delivered"].map((label, index) => (
+                 {/* Order Progress with Font Awesome Icons & Animation */}
+<div className="mb-4 position-relative">
+  {/* Animated Progress Bar */}
+  <div className="progress" style={{ height: "8px", borderRadius: "5px" }}>
     <div
-      key={index}
-      className={`step ${
-        statusStepIndex[order.orderStatus.toLowerCase()] >= index ? "active" : ""
-      }`}
-    >
-      <div className="circle">{index + 1}</div>
-      <p>{label}</p>
-    </div>
-  ))}
+      className="progress-bar bg-success progress-bar-striped progress-bar-animated"
+      role="progressbar"
+      style={{
+        width: `${(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}%`,
+        borderRadius: "5px",
+        transition: "width 1s ease-in-out",
+      }}
+      aria-valuenow={(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    ></div>
+  </div>
+
+  {/* Step Icons & Labels */}
+  <div className="d-flex justify-content-between mt-3 position-relative" style={{ top: "-10px" }}>
+    {[
+      { label: "Pending", icon: faClock },
+      { label: "Processing", icon: faSpinner },
+      { label: "Shipped", icon: faTruck },
+      { label: "Delivered", icon: faBoxOpen },
+    ].map((step, index) => {
+      const isActive = statusStepIndex[order.orderStatus.toLowerCase()] >= index;
+      return (
+        <div
+          key={index}
+          className="text-center"
+          style={{ flex: 1, zIndex: 1 }}
+        >
+          <div
+            className={`rounded-circle mx-auto mb-1 d-flex align-items-center justify-content-center ${
+              isActive ? "bg-success text-white" : "bg-light text-muted border"
+            }`}
+            style={{
+              width: "34px",
+              height: "34px",
+              fontSize: "16px",
+            }}
+          >
+            <FontAwesomeIcon icon={step.icon} />
+          </div>
+          <div style={{ fontSize: "13px" }}>{step.label}</div>
+        </div>
+      );
+    })}
+  </div>
 </div>
+
+
 
 
                     <div className="shipping-box">
