@@ -1,4 +1,3 @@
-// src/pages/About.jsx
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -28,6 +27,9 @@ const About = () => {
           <p>
             At <b>Lanka Greenovation</b>, we pioneer sustainable <b>biotech innovations</b>, redefining industries with <b>eco-friendly solutions</b>.
           </p>
+          <p className="mt-3">
+            <b>LANKA GREENOVATION LLP</b> is one of the startups supported by <b>MSME, New Delhi</b>, and incubated at <b>Kamaraj College of Engineering and Technology, Virudhunagar</b>, and <b>MABIF, Madurai</b>.
+          </p>
         </div>
 
         {/* Mission and Vision */}
@@ -54,7 +56,14 @@ const About = () => {
         <div className="mt-5 text-center fade-in-on-scroll">
           <h2 className="fw-bold">Meet Our Founders</h2>
           <p>
-            Founded by <b>Mrs. R. Ananthi</b> & Co-founded by <b>Dr. S. Karthikumar</b>, under the mentorship of <b>Dr. R. Shyam Kumar</b>.
+            Founded by visionary entrepreneur <b>Mrs. R. Ananthi</b> and <b>Dr. S. Karthikumar</b>, under the MSME mentorship of <b>Dr. R. Shyam Kumar</b>.
+          </p>
+        </div>
+
+        {/* Specialization Section */}
+        <div className="mt-4 text-center fade-in-on-scroll">
+          <p>
+            We specialize in high-quality <b>Bioproducts</b> especially <b>Algal Bioproducts, Floral Bioproducts, and Microbial Bioproducts</b>. We also design and develop customized <b>biosensor products with IoT</b> and create <b>multiplex quality parameter analyzers</b> for food and cosmetic products.
           </p>
         </div>
 

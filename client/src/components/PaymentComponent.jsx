@@ -20,7 +20,7 @@ const PaymentComponent = () => {
       const { order } = response.data;
 
       const options = {
-        key: 'rzp_test_GiLijRlMnuemoM',
+        key: 'rzp_live_gpNbVGKz3wc8cQ',
         amount: order.amount,
         currency: order.currency,
         name: 'Lanka Greenovation',

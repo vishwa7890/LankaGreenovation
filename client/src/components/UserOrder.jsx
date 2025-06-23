@@ -121,6 +121,25 @@ const UserOrder = () => {
                     })}
                   </p>
                 </div>
+                <div className="order-tracker">
+  <div className={`step ${order.orderStatus === 'pending' || order.orderStatus === 'processing' || order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'active' : ''}`}>
+    <div className="circle">1</div>
+    <p>Pending</p>
+  </div>
+  <div className={`step ${order.orderStatus === 'processing' || order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'active' : ''}`}>
+    <div className="circle">2</div>
+    <p>Processing</p>
+  </div>
+  <div className={`step ${order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'active' : ''}`}>
+    <div className="circle">3</div>
+    <p>Shipped</p>
+  </div>
+  <div className={`step ${order.orderStatus === 'delivered' ? 'active' : ''}`}>
+    <div className="circle">4</div>
+    <p>Delivered</p>
+  </div>
+</div>
+
                 <div className="shipping-box">
                   <h4>📦 Shipping Address</h4>
                   {order.address ? (
