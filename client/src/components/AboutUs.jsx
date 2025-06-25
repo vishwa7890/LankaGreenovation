@@ -1,12 +1,12 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import useScrollAnimation from "../components/ScrollAnimation"; // ✅ Import custom hook
+import useScrollAnimation from "../components/ScrollAnimation";
 import "../css/About.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const About = () => {
-  useScrollAnimation(); // ✅ Call the animation hook
+  useScrollAnimation();
 
   return (
     <div>
@@ -21,16 +21,62 @@ const About = () => {
           />
         </div>
 
-        {/* Introduction Section */}
-        <div className="text-center intro-text fade-in-on-scroll">
-          <h2 className="fw-bold text-dark mt-4">About Lanka Greenovation</h2>
-          <p>
-            At <b>Lanka Greenovation</b>, we pioneer sustainable <b>biotech innovations</b>, redefining industries with <b>eco-friendly solutions</b>.
-          </p>
-          <p className="mt-3">
-            <b>LANKA GREENOVATION LLP</b> is one of the startups supported by <b>MSME, New Delhi</b>, and incubated at <b>Kamaraj College of Engineering and Technology, Virudhunagar</b>, and <b>MABIF, Madurai</b>.
-          </p>
-        </div>
+        <div className="intro-cards-container fade-in-on-scroll">
+  <h2 className="section-title">About Lanka Greenovation</h2>
+  <div className="row g-4 justify-content-center">
+    <div className="col-md-4">
+      <div className="intro-card text-center">
+        <div className="icon-box">🌱</div>
+        <h5>Who We Are</h5>
+        <p>
+          Founded in <b>2025</b>, LANKA GREENOVATION LLP is a startup committed to <b>sustainable innovation</b> in <b>bioproducts</b> and <b>Agri-tech</b>.
+        </p>
+      </div>
+    </div>
+
+    <div className="col-md-4">
+      <div className="intro-card text-center">
+        <div className="icon-box">🧪</div>
+        <h5>Our Specialization</h5>
+        <p>
+          We offer <b>algal-, floral-, and microbial-based products</b> for the food, cosmetics, and agriculture industries.
+        </p>
+      </div>
+    </div>
+
+    <div className="col-md-4">
+      <div className="intro-card text-center">
+        <div className="icon-box">🤖</div>
+        <h5>Smart Technology</h5>
+        <p>
+          We design <b>AI/ML- and IoT-powered equipment</b> for automation and precision in biotech and agri applications.
+        </p>
+      </div>
+    </div>
+
+    <div className="col-md-4">
+      <div className="intro-card text-center">
+        <div className="icon-box">⚙️</div>
+        <h5>Our Innovations</h5>
+        <p>
+          From <b>multiplex analyzers</b> to <b>automated Bokashi composters</b>, we create tools for a greener future.
+        </p>
+      </div>
+    </div>
+
+    <div className="col-md-4">
+      <div className="intro-card text-center">
+        <div className="icon-box">🏛️</div>
+        <h5>Recognized & Supported</h5>
+        <p>
+          Supported by <b>MSME, New Delhi</b>, incubated at <b>KCET</b> & <b>MABIF</b>, and <b>DPIIT-recognized</b> via <b>MSME Idea Hackathon 2.0</b>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
         {/* Mission and Vision */}
         <div className="row mt-5 align-items-center">
@@ -63,7 +109,7 @@ const About = () => {
         {/* Specialization Section */}
         <div className="mt-4 text-center fade-in-on-scroll">
           <p>
-            We specialize in high-quality <b>Bioproducts</b> especially <b>Algal Bioproducts, Floral Bioproducts, and Microbial Bioproducts</b>. We also design and develop customized <b>biosensor products with IoT</b> and create <b>multiplex quality parameter analyzers</b> for food and cosmetic products.
+            We specialize in high-quality <b>Bioproducts</b>—especially <b>Algal Bioproducts, Floral Bioproducts, and Microbial Bioproducts</b>. We also design and develop customized <b>biosensor products with IoT</b> and create <b>multiplex quality parameter analyzers</b> for food and cosmetic products.
           </p>
         </div>
 
