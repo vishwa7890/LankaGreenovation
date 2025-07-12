@@ -144,9 +144,7 @@ const UserCart = () => {
                     <p>
                       <strong>Status:</strong> {product.stockStatus}
                     </p>
-                    <p>
-                      <strong>Available:</strong> {product.availablestock}
-                    </p>
+                    
 
                     <div className="cart-buttons">
                       <button

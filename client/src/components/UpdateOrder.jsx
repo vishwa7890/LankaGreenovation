@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/UpdateOrder.css";
+
 const UpdateOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,8 +43,6 @@ const UpdateOrder = () => {
         { orderStatus },
         { withCredentials: true }
       );
-      console.log(orderStatus);
-      
       toast.success("Order status updated successfully!");
       setTimeout(() => navigate("/admin/orders"), 1500);
     } catch (error) {
@@ -63,10 +62,10 @@ const UpdateOrder = () => {
       }}
     >
       <div className="update-order-container">
-         {/* 🔙 Back Button */}
-      <button className="back-btn" onClick={() => navigate("/admin/orders")}>
-  Back 
-</button>
+        {/* 🔙 Back Button */}
+        <button className="back-btn" onClick={() => navigate("/admin/orders")}>
+          Back
+        </button>
 
         <h2 className="update-order-heading">🛠️ Update Order Details</h2>
 
@@ -92,14 +91,9 @@ const UpdateOrder = () => {
                 <option value="Cancelled">Cancelled</option>
                 <option value="User Cancelled">User Cancelled</option>
               </select>
-              <button
-                onClick={handleUpdate}
-                className="update-button"
-                
-              >
+              <button onClick={handleUpdate} className="update-button">
                 ✅ Update Order
               </button>
-
             </div>
 
             <hr className="section-divider" />
@@ -120,8 +114,8 @@ const UpdateOrder = () => {
 
             <h3 className="section-title">🛒 Products</h3>
             {order.products?.length > 0 ? (
-              order.products.map((product) => (
-                <div key={product._id} className="product-card">
+              order.products.map((product, index) => (
+                <div key={product._id || index} className="product-card">
                   <img
                     src={`http://localhost:5000/${product.productId?.thumbnail}`}
                     alt={product.productId?.name}
@@ -138,6 +132,36 @@ const UpdateOrder = () => {
             ) : (
               <p>No products found.</p>
             )}
+
+            <h3 className="section-title">💰 Amount Breakdown</h3>
+            <div className="amount-breakdown">
+              <table className="amount-table">
+                <tbody>
+                  <tr>
+                    <td>Product Total</td>
+                    <td>₹{order.productTotal}</td>
+                  </tr>
+                  <tr>
+                    <td>GST (18%)</td>
+                    <td>₹{order.gst}</td>
+                  </tr>
+                  <tr>
+                    <td>Delivery Charge</td>
+                    <td>₹{order.deliveryCharge}</td>
+                  </tr>
+                  {order.paymentMethod === "COD" && (
+                    <tr>
+                      <td>Handling Fee</td>
+                      <td>₹{order.handlingFee}</td>
+                    </tr>
+                  )}
+                  <tr className="total-row">
+                    <td><strong>Total Amount</strong></td>
+                    <td><strong>₹{order.totalPrice}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <p>No order found.</p>

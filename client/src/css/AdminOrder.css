@@ -125,6 +125,30 @@
 .clear-filter-btn:hover {
   background-color: #c82333;
 }
+.excel-btn {
+  background-color: #1d6f42;         /* Excel green */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.excel-btn:hover {
+  background-color: #155d35;         /* Darker green on hover */
+}
+
+.excel-btn:active {
+  transform: scale(0.98);
+}
+
+
 
 /* Responsive */
 @media (max-width: 768px) {

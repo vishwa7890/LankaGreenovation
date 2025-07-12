@@ -166,6 +166,29 @@ strong {
 .back-btn:hover {
   background-color: #1b5e20;
 }
+.amount-breakdown {
+  margin-top: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.amount-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.amount-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.amount-table .total-row td {
+  font-weight: bold;
+  color: #333;
+}
+
 
 /* Responsive for mobile */
 @media (max-width: 600px) {

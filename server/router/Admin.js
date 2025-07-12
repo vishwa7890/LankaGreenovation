@@ -368,20 +368,18 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
     const AdminId = req.admin.id;
     const existUser = await Admin.findById(AdminId);
     if (!existUser) {
-      return res.status(401).json({ message: "User not found" });
+      return res.status(401).json({ message: "Admin not found" });
     }
 
     const { orderStatus } = req.body;
-    console.log(orderStatus);
-    
+    console.log("Updating order to:", orderStatus);
 
-    // Find the order
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // If status is "Processing", update stock
+    // ✅ If status is "Processing", update stock
     if (orderStatus === "Processing") {
       for (const item of order.products) {
         const product = await Product.findById(item.productId);
@@ -400,89 +398,90 @@ router.put('/update-order/:id', verifyAdmin, async (req, res) => {
       }
     }
 
-    // Update order status
+    // ✅ Update status and COD payment
     order.orderStatus = orderStatus;
-    const updatedOrder = await order.save();
 
-    // If order cancelled, send email
-    if (orderStatus === "Cancelled") {
-      await updatedOrder.populate("products.productId");
-      const user = await User.findById(updatedOrder.userId);
-
-      const productDetails = updatedOrder.products.map(item => {
-        return `
-          <p>
-            <strong>Product:</strong> ${item.productId.name}<br />
-            <strong>Quantity:</strong> ${item.quantity}<br />
-            <strong>Price:</strong> ₹${item.price}
-          </p>
-          <hr />
-        `;
-      }).join("");
-
-      const userMailOptions = {
-        from: process.env.EMAIL,
-        to: user.email,
-        subject: 'Your Order Has Been Cancelled',
-        html: `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Order Cancelled</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-            <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-              <table style="width: 100%; margin-bottom: 20px;">
-                <tr>
-                  <td style="width: 100px;">
-                    <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-                  </td>
-                  <td style="text-align: left; vertical-align: middle;">
-                    <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
-                  </td>
-                </tr>
-              </table>
-
-              <h2 style="text-align: center; color: #333;">Order Cancellation Confirmation</h2>
-
-              <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
-              <p style="text-align: center; color: #555;">
-                Your order has been cancelled. Below are your order details:
-              </p>
-
-              <div style="margin: 20px 0; color: #333;">
-                <p><strong>Order ID:</strong> ${updatedOrder._id}</p>
-                <p><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
-              </div>
-
-              <div style="margin: 20px 0;">
-                <h4 style="color: #444;">Cancelled Products:</h4>
-                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #333;">
-                  ${productDetails}
-                </div>
-              </div>
-
-              <p style="text-align: center; color: #777; margin-top: 20px;">
-                We’re sorry for the inconvenience. If you have any questions, please reach out to our support team.
-              </p>
-
-              <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-                For assistance, contact us at <strong>lankagreenovation@gmail.com</strong>.
-              </p>
-            </div>
-          </body>
-          </html>
-        `
-      };
-
-      transporter.sendMail(userMailOptions, (err) => {
-        if (err) console.error("Failed to send cancellation email:", err);
-      });
+    if (order.paymentMethod === "COD" && orderStatus === "Delivered") {
+      order.paymentStatus = "Paid";
     }
 
+    const updatedOrder = await order.save();
+    await updatedOrder.populate("products.productId");
+
+    const user = await User.findById(updatedOrder.userId);
+
+    const productDetails = updatedOrder.products.map(item => {
+      return `
+        <p>
+          <strong>Product:</strong> ${item.productId.name}<br />
+          <strong>Quantity:</strong> ${item.quantity}<br />
+          <strong>Price:</strong> ₹${item.price}
+        </p>
+        <hr />
+      `;
+    }).join("");
+
+    const subjectMap = {
+      "Pending": "Order Placed",
+      "Processing": "Order is Processing",
+      "Shipped": "Order Shipped",
+      "Delivered": "Order Delivered",
+      "Cancelled": "Order Cancelled"
+    };
+
+    const userMailOptions = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: `Your Order Status: ${subjectMap[orderStatus] || "Updated"}`,
+      html: `
+        <div style="max-width:600px;margin:auto;background:#ffffff;padding:30px;border-radius:12px;border:1px solid #e0e0e0;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.07);">
+  
+  <h2 style="text-align:center;color:#2c3e50;margin-bottom:24px;">
+    ${subjectMap[orderStatus] || "Order Update"}
+  </h2>
+
+  <p style="font-size:16px;color:#444;margin-bottom:12px;">
+    Hello <strong>${user.username}</strong>,
+  </p>
+
+  <p style="font-size:15px;color:#555;margin-bottom:20px;">
+    Your order <strong>#${updatedOrder._id}</strong> status has been updated to 
+    <strong style="color:#27ae60">${orderStatus}</strong>.
+  </p>
+
+  <div style="background:#f4f6f8;border-radius:8px;padding:15px;margin-bottom:20px;">
+    <p style="margin:0 0 8px;"><strong>Total Price:</strong> ₹${updatedOrder.totalPrice}</p>
+    <p style="margin:0 0 8px;"><strong>Payment:</strong> ${updatedOrder.paymentMethod} - ${updatedOrder.paymentStatus}</p>
+  </div>
+
+  <h4 style="color:#2c3e50;margin-top:30px;margin-bottom:12px;">🛒 Products</h4>
+  <div style="background:#fafafa;padding:15px;border-left:4px solid #3498db;border-radius:6px;
+              font-size:14px;line-height:1.6;color:#333;">
+    ${productDetails}
+  </div>
+
+  <p style="margin-top:30px;font-size:13px;color:#888;text-align:center;">
+    If you have any questions, feel free to reach out to us at 
+    <a href="mailto:lankagreenovation@gmail.com" style="color:#3498db;text-decoration:none;">
+      lankagreenovation@gmail.com
+    </a>
+  </p>
+</div>
+
+      `
+    };
+
+    transporter.sendMail(userMailOptions, (err) => {
+      if (err) {
+        console.error("Email send failed:", err);
+      } else {
+        console.log("Status update email sent to", user.email);
+      }
+    });
+
     res.status(200).json({ message: "Order updated successfully", order: updatedOrder });
+
   } catch (error) {
     console.error("Error updating order:", error);
     res.status(500).json({ message: "Error updating order", error: error.message });

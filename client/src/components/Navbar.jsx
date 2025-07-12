@@ -7,6 +7,7 @@ const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const [dropdown, setDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // ← manage toggle
 
   return (
     <nav className="custom-navbar navbar navbar-expand-lg navbar-light bg-light sticky-top">
@@ -20,22 +21,23 @@ const Navbar = () => {
           <span className="fw-bold custom-navbar-text">Lanka Greenovation</span>
         </Link>
 
+        {/* Toggle Button */}
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
+        {/* Collapsible Menu */}
+        <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="navbarNav">
           <ul className="navbar-nav ms-auto d-flex align-items-center">
             <li className="nav-item">
-              <Link className="btn custom-nav-btn" to="/">Home</Link>
+              <Link className="btn custom-nav-btn" to="/" onClick={() => setMenuOpen(false)}>Home</Link>
             </li>
             <li className="nav-item">
-              <Link className="btn custom-nav-btn" to="/user/productlist">Products</Link>
+              <Link className="btn custom-nav-btn" to="/user/productlist" onClick={() => setMenuOpen(false)}>Products</Link>
             </li>
 
             {/* More Dropdown */}
@@ -48,11 +50,11 @@ const Navbar = () => {
               </button>
               {moreDropdown && (
                 <div className="more-dropdown-menu">
-                  <Link className="dropdown-item" to="/user/orders">Orders</Link>
-                  <Link className="dropdown-item" to="/user/cart">Cart</Link>
-                  <Link className="dropdown-item" to="/Gallery">Gallery</Link>
-                  <Link className="dropdown-item" to="/aboutus">About</Link>
-                  <Link className="dropdown-item" to="/ContactUs">Contact</Link>
+                  <Link className="dropdown-item" to="/user/orders" onClick={() => setMenuOpen(false)}>Orders</Link>
+                  <Link className="dropdown-item" to="/user/cart" onClick={() => setMenuOpen(false)}>Cart</Link>
+                  <Link className="dropdown-item" to="/Gallery" onClick={() => setMenuOpen(false)}>Gallery</Link>
+                  <Link className="dropdown-item" to="/aboutus" onClick={() => setMenuOpen(false)}>About</Link>
+                  <Link className="dropdown-item" to="/ContactUs" onClick={() => setMenuOpen(false)}>Contact</Link>
                 </div>
               )}
             </li>
@@ -68,17 +70,20 @@ const Navbar = () => {
                 </button>
                 {dropdown && (
                   <div className="user-dropdown-menu">
-                    <button className="dropdown-item" onClick={logout}>Logout</button>
+                    <button className="dropdown-item" onClick={() => {
+                      logout();
+                      setMenuOpen(false);
+                    }}>Logout</button>
                   </div>
                 )}
               </li>
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="btn custom-nav-btn" to="/user/register">Sign Up</Link>
+                  <Link className="btn custom-nav-btn" to="/user/register" onClick={() => setMenuOpen(false)}>Sign Up</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="btn custom-nav-btn" to="/user/login">Login</Link>
+                  <Link className="btn custom-nav-btn" to="/user/login" onClick={() => setMenuOpen(false)}>Login</Link>
                 </li>
               </>
             )}

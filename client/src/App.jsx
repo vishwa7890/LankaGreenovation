@@ -29,6 +29,9 @@ import ForgotPassword from './components/ForgotPassword';
 import AdminContactList from './components/AdminContactList';
 import PaymentComponent from './components/PaymentComponent';
 import PaymentComponent1 from './components/PaymentComponent1';
+import Invoice from './components/Invoice';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 
@@ -67,7 +70,7 @@ function App() {
         <Route path='/admin/contact' element={<AdminContactList/>} />
         <Route path='user/pay' element={<PaymentComponent/>} />
         <Route path='user/pay-cod' element={<PaymentComponent1/>} />
-
+        <Route path="/user/invoice/:orderId" element={<Invoice />} />
         
         
       </Routes>

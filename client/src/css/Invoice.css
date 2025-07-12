@@ -1,0 +1,94 @@
+.invoice-wrapper {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background: #fefefe;
+  color: #333;
+}
+
+.invoice-card {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.invoice-card header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.invoice-card h1 {
+  margin-bottom: 5px;
+  color: #2f855a;
+}
+
+.invoice-meta, .address-box, .amount-summary {
+  margin-bottom: 1.5rem;
+}
+
+.product-table table, .amount-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table th, table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.amount-summary td {
+  text-align: right;
+}
+
+.amount-summary tr.total {
+  background-color: #f0fff4;
+  font-weight: bold;
+}
+
+.print-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #2f855a;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.invoice-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.invoice-logo {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.back-btn {
+  margin: 20px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #388e3c;
+}
+
+
+
+@media print {
+  .print-btn {
+    display: none;
+  }
+}

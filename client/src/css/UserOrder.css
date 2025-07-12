@@ -244,6 +244,54 @@
   cursor: not-allowed;
   color: #666;
 }
+/* Amount breakdown section */
+.amount-breakdown {
+  margin-top: 1.5rem;
+  background-color: #f0fff4;
+  border: 1px solid #9ae6b4;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.amount-breakdown h4 {
+  margin-bottom: 0.8rem;
+  color: #276749;
+  font-weight: bold;
+}
+
+.amount-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.amount-table td {
+  padding: 6px 8px;
+  font-size: 14.5px;
+  color: #2f855a;
+}
+
+.amount-table tr:last-child td {
+  font-weight: bold;
+  font-size: 15px;
+  border-top: 1px dashed #9ae6b4;
+  padding-top: 10px;
+}
+@media (max-width: 768px) {
+  .amount-breakdown {
+    padding: 0.8rem;
+    font-size: 14px;
+  }
+
+  .amount-table td {
+    font-size: 13.5px;
+  }
+
+  .amount-table tr:last-child td {
+    font-size: 14px;
+  }
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

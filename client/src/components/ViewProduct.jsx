@@ -54,7 +54,7 @@ const ViewProduct = () => {
       toast.success("Product added successfully!");
       console.log(response.data.message);
     } catch (err) {
-      toast.error(`Error adding product: ${err.response?.data?.message || err.message}`);
+      toast.error(`Error adding product: Please Login First!!!`);
       console.error("Error adding to cart:", err);
     }
   };
@@ -74,7 +74,7 @@ const ViewProduct = () => {
       setCommentError("");
       toast.success("Comment added successfully!");
     } catch (err) {
-      const message = err.response?.data?.message || "Error adding comment";
+      const message = err.response?.data?.message || "Please Login First!!!";
       toast.error(message);
     }
   };

@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const Product = require("../model/Product");
 const Cart = require('../model/Cart');
 const Address = require('../model/Address');
-const Order = require('../model/Order');
+const Order = require("../model/Order"); // ✔️ Loads the full model with .find, .save, etc.
 const verifyUser = require('../middleware/verifyUser');
 require('dotenv').config();
 const Razorpay = require('razorpay');
@@ -700,205 +700,248 @@ router.post("/initiate-payment", verifyUser, async (req, res) => {
   }
 });
 
+// Example: routes/User.js
 
-router.post("/place-order", verifyUser, async (req, res) => {
+router.post("/order-summary", verifyUser, async (req, res) => {
+  try {
+    const { products, paymentMethod } = req.body;
+
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ message: "Invalid product data" });
+    }
+
+    // Calculate product total
+    const productTotal = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+    const gstRate = 0.18;
+    const gst = parseFloat((productTotal * gstRate).toFixed(2));
+    const deliveryCharge = 50;
+    const handlingFee = paymentMethod === "COD" ? 30 : 0;
+
+    const totalPrice = Math.round(productTotal + gst + deliveryCharge + handlingFee);
+
+    return res.status(200).json({
+      productTotal,
+      gst,
+      deliveryCharge,
+      handlingFee,
+      totalPrice,
+    });
+  } catch (err) {
+    console.error("Summary error:", err);
+    res.status(500).json({ message: "Summary calculation failed" });
+  }
+});
+
+
+
+router.post("/create-order-cod", verifyUser, async (req, res) => {
   try {
     const { products, paymentMethod, totalPrice, addressId } = req.body;
+
     const userId = req.user.id;
 
-    if (!products || products.length === 0) {
+    // 1. Validate required inputs
+    if (!products || !Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ message: "No products selected" });
     }
 
-    if (paymentMethod !== "COD") {
-      return res.status(400).json({ message: "This endpoint supports only COD orders" });
+    if (!paymentMethod || paymentMethod !== "COD") {
+      return res.status(400).json({ message: "Only Cash on Delivery (COD) is supported at the moment." });
     }
 
-    const address = await Address.findById(addressId);
+    // 2. Fetch Address & User
+    const [address, user] = await Promise.all([
+      Address.findById(addressId),
+      User.findById(userId),
+    ]);
+
     if (!address) {
-      return res.status(400).json({ message: "Address not found" });
+      return res.status(404).json({ message: "Address not found" });
     }
 
-    const user = await User.findById(userId);
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
+    // 3. Charges calculation in backend
+    const productTotal = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+    const gstRate = 0.18;
+    const gst = parseFloat((productTotal * gstRate).toFixed(2));
+    const deliveryCharge = 50;
+    const handlingFee = 30;
+    const calculatedTotal = Math.round(productTotal + gst + deliveryCharge + handlingFee);
+// Generate custom Invoice ID like INV-2025-07-001
+const now = new Date();
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+
+// Count existing orders in this month
+const count = await Order.countDocuments({
+  createdAt: {
+    $gte: new Date(`${year}-${month}-01`),
+    $lt: new Date(`${year}-${month}-31`)
+  }
+});
+
+// Format ID
+const invoiceId = `INV-${year}-${month}-${String(count + 1).padStart(3, '0')}`;
+
+    // 5. Save order
     const newOrder = new Order({
+      _id: invoiceId,
       userId,
       products,
       address: address._id,
-      totalPrice,
+      productTotal,
+      gst,
+      deliveryCharge,
+      handlingFee,
+      totalPrice: calculatedTotal,
       paymentMethod,
       paymentStatus: "Pending",
     });
 
     await newOrder.save();
     await newOrder.populate("products.productId");
-    
-    
 
+    // 📧 Email to User
     const mailOptions = {
-  from: process.env.EMAIL,
-  to: user.email,
-  subject: 'Your Order Placed Successfully',
-  html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Order Placed</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-
-        <!-- Logo and Function Name in Table -->
-        <table style="width: 100%; margin-bottom: 20px;">
-          <tr>
-            <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-            </td>
-            <td style="text-align: left; vertical-align: middle;">
-              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Title -->
-        <h2 style="text-align: center; color: #333;">Order Confirmation</h2>
-
-        <!-- Greeting -->
-        <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
-        <p style="text-align: center; color: #555;">
-          Your order has been successfully placed. Here are your order details:
-        </p>
-
-        <!-- Order Summary -->
-        <div style="margin: 20px 0; color: #333;">
-          <p><strong>Order ID:</strong> ${newOrder._id}</p>
-          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
-          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-        </div>
-
-        <!-- Product Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: 'Your Order Placed Successfully',
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Order Placed</title></head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 10px;">
+          <table style="width: 100%; margin-bottom: 20px;">
+            <tr>
+              <td style="width: 100px;"><img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
+              <td style="text-align: left; vertical-align: middle;">
+                <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            ${newOrder.products.map(product => `
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
+          </table>
+          <h2 style="text-align: center; color: #333;">Order Confirmation</h2>
+          <p style="text-align: center; color: #555;">Hello <strong>${user.username}</strong>,</p>
+          <p style="text-align: center; color: #555;">Your order has been placed successfully. Here are the details:</p>
+
+          <div style="margin: 20px 0; color: #333;">
+            <p><strong>Order ID:</strong> ${newOrder._id}</p>
+            <p><strong>Product Total:</strong> ₹${productTotal.toFixed(2)}</p>
+            <p><strong>GST (18%):</strong> ₹${gst.toFixed(2)}</p>
+            <p><strong>Delivery Charge:</strong> ₹${deliveryCharge}</p>
+            <p><strong>Handling Fee:</strong> ₹${handlingFee}</p>
+            <p><strong>Total Price:</strong> ₹${calculatedTotal}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 10px;">Product</th>
+                <th style="border: 1px solid #ddd; padding: 10px;">Qty</th>
+                <th style="border: 1px solid #ddd; padding: 10px;">Price</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${newOrder.products.map(p => `
+                <tr>
+                  <td style="border: 1px solid #ddd; padding: 10px;">${p.productId.name}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px; text-align:center;">${p.quantity}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px; text-align:right;">₹${p.price}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
 
-        <!-- Thank You -->
-        <p style="text-align: center; color: #555; margin-top: 30px;">
-          Thank you for shopping with us!
-        </p>
-
-        <!-- Footer -->
-        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          For any help, contact us at <strong>lankagreenovation@gmail.com</strong>.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
-};
-
-    transporter.sendMail(mailOptions);
-
-    
-  const mailOptions2 = {
-  from: process.env.EMAIL,
-  to: process.env.EMAIL,
-  subject: 'Your User Placed Order',
-  html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>User Order Alert</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-
-        <!-- Logo and Function Name in Table -->
-        <table style="width: 100%; margin-bottom: 20px;">
-          <tr>
-            <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-            </td>
-            <td style="text-align: left; vertical-align: middle;">
-              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Admin Alert -->
-        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
-        <p style="text-align: center; color: #555;">
-          Your user <strong>${user.username}</strong> has placed a new order.
-        </p>
-
-        <!-- Order Summary -->
-        <div style="margin: 20px 0; color: #333;">
-          <p><strong>Order ID:</strong> ${newOrder._id}</p>
-          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
-          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+          <p style="text-align: center; color: #555; margin-top: 30px;">Thank you for shopping with us!</p>
+          <p style="font-size: 12px; color: #888; text-align: center;">Need help? Contact us at <strong>lankagreenovation@gmail.com</strong></p>
         </div>
+        </body>
+        </html>
+      `
+    };
 
-        <!-- Product Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
+    // 📧 Email to Admin
+    const mailOptions2 = {
+      from: process.env.EMAIL,
+      to: process.env.EMAIL,
+      subject: 'User Placed an Order',
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>New Order</title></head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 10px;">
+          <table style="width: 100%; margin-bottom: 20px;">
+            <tr>
+              <td style="width: 100px;"><img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
+              <td style="text-align: left; vertical-align: middle;">
+                <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            ${newOrder.products.map(product => `
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+          </table>
+          <h2 style="text-align: center; color: #333;">New Order by ${user.username}</h2>
 
-        <!-- Footer -->
-        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          This is an automated notification. No action is required.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
-};
-   transporter.sendMail(mailOptions2);
+          <div style="margin: 20px 0; color: #333;">
+            <p><strong>Order ID:</strong> ${newOrder._id}</p>
+            <p><strong>Product Total:</strong> ₹${productTotal.toFixed(2)}</p>
+            <p><strong>GST (18%):</strong> ₹${gst.toFixed(2)}</p>
+            <p><strong>Delivery Charge:</strong> ₹${deliveryCharge}</p>
+            <p><strong>Handling Fee:</strong> ₹${handlingFee}</p>
+            <p><strong>Total Price:</strong> ₹${calculatedTotal}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 10px;">Product</th>
+                <th style="border: 1px solid #ddd; padding: 10px;">Qty</th>
+                <th style="border: 1px solid #ddd; padding: 10px;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${newOrder.products.map(p => `
+                <tr>
+                  <td style="border: 1px solid #ddd; padding: 10px;">${p.productId.name}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px; text-align:center;">${p.quantity}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px; text-align:right;">₹${p.price}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
+            This is an automated alert.
+          </p>
+        </div>
+        </body>
+        </html>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions2);
 
     await Cart.deleteMany({ userId });
 
-    res.status(201).json({ message: "COD Order placed successfully", order: newOrder });
+    res.status(201).json({
+      message: "COD Order placed successfully",
+      order: newOrder,
+    });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error placing COD order", error: error.message });
+    res.status(500).json({
+      message: "Error placing COD order",
+      error: error.message,
+    });
   }
 });
+
 
 
 /*router.post("/verify-payment",verifyUser, async (req, res) => {
@@ -1198,6 +1241,23 @@ router.get("/orders", verifyUser, async (req, res) => {
     console.log(err);
   }
 });
+// GET /user/order/:orderId - Fetch single order by ID
+router.get('/order/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId)
+      .populate('products.productId') // populates product details
+      .populate('address'); // populates address details
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ order });
+  } catch (err) {
+    console.error('Error fetching order:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 
 router.post('/products/:id/comments', verifyUser, async (req, res) => {
@@ -1408,27 +1468,71 @@ router.post("/create-order", verifyUser, async (req, res) => {
     const { products, totalPrice, addressId, paymentMethod, razorpayOrderId } = req.body;
     const userId = req.user.id;
 
+    // Validate
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ message: "No products provided" });
+    }
+
+    if (paymentMethod !== "Online") {
+      return res.status(400).json({ message: "Only online payment is allowed here" });
+    }
+
+    // Fetch address and user
+    const [address, user] = await Promise.all([
+      Address.findById(addressId),
+      User.findById(userId),
+    ]);
+
+    if (!address) return res.status(404).json({ message: "Address not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Recalculate totals
+    const productTotal = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+    const gstRate = 0.18;
+    const gst = parseFloat((productTotal * gstRate).toFixed(2));
+    const deliveryCharge = 50;
+    const handlingFee = 0;
+    const calculatedTotal = Math.round(productTotal + gst + deliveryCharge + handlingFee);
+
+    // Generate custom Invoice ID
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+
+    const count = await Order.countDocuments({
+      createdAt: {
+        $gte: new Date(`${year}-${month}-01`),
+        $lt: new Date(`${year}-${month}-31`)
+      }
+    });
+
+    const invoiceId = `INV-${year}-${month}-${String(count + 1).padStart(3, '0')}`;
+
+    // Save Order
     const newOrder = new Order({
+      _id: invoiceId,
       userId,
       razorpayOrderId,
       products,
-      address: addressId,
-      totalPrice,
+      address: address._id,
+      productTotal,
+      gst,
+      deliveryCharge,
+      handlingFee,
+      totalPrice: calculatedTotal,
       paymentMethod,
       paymentStatus: "Paid",
     });
 
     await newOrder.save();
-    const user = await User.findById(newOrder.userId);
-
     await newOrder.populate("products.productId");
 
+    // Email to user
     const mailOptions = {
-  from: process.env.EMAIL,
-  to: user.email,
-  subject: 'Payment Successful – Order Confirmed!',
-  html: `
-    <!DOCTYPE html>
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: 'Payment Successful – Order Confirmed!',
+      html: `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -1491,17 +1595,15 @@ router.post("/create-order", verifyUser, async (req, res) => {
         </p>
       </div>
     </body>
-    </html>
-  `
-};
-    transporter.sendMail(mailOptions);
+    </html>`
+    };
 
+    // Email to admin
     const mailOptions2 = {
-  from: process.env.EMAIL,
-  to: process.env.EMAIL,
-  subject: 'Your User Placed Order',
-  html: `
-    <!DOCTYPE html>
+      from: process.env.EMAIL,
+      to: process.env.EMAIL,
+      subject: 'Your User Placed Order',
+      html: `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -1562,191 +1664,24 @@ router.post("/create-order", verifyUser, async (req, res) => {
         </p>
       </div>
     </body>
-    </html>
-  `
-};
-    
-    transporter.sendMail(mailOptions2);
+    </html>`
+    };
 
-    await Cart.deleteMany({ userId });
-    res.status(201).json({ message: "Order placed successfully", order: newOrder });
-  } catch (err) {
-    console.error("Order Creation Failed:", err);
-    res.status(500).json({ message: "Failed to place order" });
-  }
-});
-
-router.post("/create-order-cod", verifyUser, async (req, res) => {
-  try {
-    const { products, totalPrice, addressId, paymentMethod,  } = req.body;
-    const userId = req.user.id;
-
-    const newOrder = new Order({
-      userId,
-      products,
-      address: addressId,
-      totalPrice,
-      paymentMethod,
-      paymentStatus: "Pending",
-    });
-
-    await newOrder.save();
-    const user = await User.findById(newOrder.userId);
-
-    await newOrder.populate("products.productId");
-
-    const mailOptions = {
-  from: process.env.EMAIL,
-  to: user.email,
-  subject: 'Order Confirmed!',
-  html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Order Confirmation</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-
-        <!-- Header with logo and function name -->
-        <table style="width: 100%; margin-bottom: 20px;">
-          <tr>
-            <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-            </td>
-            <td style="text-align: left; vertical-align: middle;">
-              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Confirmation</span>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Greeting & Confirmation -->
-        <h2 style="text-align: center; color: #333;">Order Successful!</h2>
-        <p style="text-align: center; color: #555;">Dear <strong>${user.username}</strong>,</p>
-        <p style="text-align: center; color: #555;">Your order has been confirmed and is now being processed.</p>
-
-
-        <!-- Order Summary -->
-        <div style="margin: 20px 0; color: #333;">
-          <p><strong>Order ID:</strong> ${newOrder._id}</p>
-          <p><strong>Total Price:</strong> ₹${newOrder.totalPrice}</p>
-          <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
-        </div>
-
-        <!-- Product Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${newOrder.products.map(product => `
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-
-        <!-- Footer -->
-        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          Thank you for shopping with us!  
-        </p>
-        <p style="font-size: 12px; color: #888; text-align: center;">
-          For help, contact <strong>lankagreenovation@gmail.com</strong>.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
-};
     transporter.sendMail(mailOptions);
-
-    const mailOptions2 = {
-  from: process.env.EMAIL,
-  to: process.env.EMAIL,
-  subject: 'Your User Placed Order',
-  html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>User Order Alert</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-
-        <!-- Logo and Function Name in Table -->
-        <table style="width: 100%; margin-bottom: 20px;">
-          <tr>
-            <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
-            </td>
-            <td style="text-align: left; vertical-align: middle;">
-              <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Admin Alert -->
-        <h2 style="text-align: center; color: #333;">New Order Placed</h2>
-        <p style="text-align: center; color: #555;">
-          Your user <strong>${user.username}</strong> has placed a new order.
-        </p>
-
-        <!-- Order Summary -->
-        <div style="margin: 20px 0; color: #333;">
-          <p><strong>Order ID:</strong> ${newOrder._id}</p>
-          <p><strong>Total Price:</strong> ₹${totalPrice}</p>
-          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-        </div>
-
-        <!-- Product Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${newOrder.products.map(product => `
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 10px;">${product.productId.name}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${product.quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">₹${product.price}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-
-        <!-- Footer -->
-        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px;">
-          This is an automated notification. No action is required.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
-};
-    
     transporter.sendMail(mailOptions2);
+
+    // Clear cart
     await Cart.deleteMany({ userId });
+
     res.status(201).json({ message: "Order placed successfully", order: newOrder });
+
   } catch (err) {
     console.error("Order Creation Failed:", err);
     res.status(500).json({ message: "Failed to place order" });
   }
 });
+
+
 
 
 router.put("/cancel", verifyUser, async (req, res) => {

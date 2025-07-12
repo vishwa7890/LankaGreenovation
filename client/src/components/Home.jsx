@@ -37,13 +37,13 @@ const Home = () => {
           loop={true}
         >
           <SwiperSlide>
-            <img className="d-block w-100 hero-img" src="banner1.png" alt="Slide 1" />
+            <img className="d-block w-100 hero-img" src="home_1.png" alt="Slide 1" />
           </SwiperSlide>
           <SwiperSlide>
-            <img className="d-block w-100 hero-img" src="banner2.png" alt="Slide 2" />
+            <img className="d-block w-100 hero-img" src="home_2.png" alt="Slide 2" />
           </SwiperSlide>
           <SwiperSlide>
-            <img className="d-block w-100 hero-img" src="banner3.png" alt="Slide 3" />
+            <img className="d-block w-100 hero-img" src="home_3.png" alt="Slide 3" />
           </SwiperSlide>
         </Swiper>
       </div>
@@ -82,7 +82,7 @@ const Home = () => {
             {[
               { img: "/bio_fertilizer.png", title: "Biofertilizers", desc: "Biofertilizers boost soil fertility by enhancing microbes and nutrient uptake." },
               { img: "/cosmetic_bioproducts.png", title: "Cosmetic Bioproducts", desc: "Natural skincare solutions with herbal face masks and organic sunscreens." },
-              { img: "/fish_feed.png", title: "Ornamental Fish Feed", desc: "Sustainable, high-protein fish feed enriched with essential nutrients." }
+              { img: "/functional foods.jpg", title: "Functional Food", desc: "Natural nutrition with functional foods and organic superfoods." }
             ].map((product, index) => (
               <div className="col-md-4" data-aos="flip-up" key={index}>
                 <div className="card shadow-lg">

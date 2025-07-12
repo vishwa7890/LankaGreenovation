@@ -12,7 +12,6 @@ import {
   faBoxOpen
 } from "@fortawesome/free-solid-svg-icons";
 
-
 const UserOrder = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,60 +131,49 @@ const UserOrder = () => {
                       </p>
                     </div>
 
-                 {/* Order Progress with Font Awesome Icons & Animation */}
-<div className="mb-4 position-relative">
-  {/* Animated Progress Bar */}
-  <div className="progress" style={{ height: "8px", borderRadius: "5px" }}>
-    <div
-      className="progress-bar bg-success progress-bar-striped progress-bar-animated"
-      role="progressbar"
-      style={{
-        width: `${(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}%`,
-        borderRadius: "5px",
-        transition: "width 1s ease-in-out",
-      }}
-      aria-valuenow={(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}
-      aria-valuemin="0"
-      aria-valuemax="100"
-    ></div>
-  </div>
+                    {/* Progress bar */}
+                    <div className="mb-4 position-relative">
+                      <div className="progress" style={{ height: "8px", borderRadius: "5px" }}>
+                        <div
+                          className="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                          role="progressbar"
+                          style={{
+                            width: `${(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}%`,
+                            borderRadius: "5px",
+                            transition: "width 1s ease-in-out",
+                          }}
+                          aria-valuenow={(statusStepIndex[order.orderStatus.toLowerCase()] / 3) * 100}
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                        ></div>
+                      </div>
 
-  {/* Step Icons & Labels */}
-  <div className="d-flex justify-content-between mt-3 position-relative" style={{ top: "-10px" }}>
-    {[
-      { label: "Pending", icon: faClock },
-      { label: "Processing", icon: faSpinner },
-      { label: "Shipped", icon: faTruck },
-      { label: "Delivered", icon: faBoxOpen },
-    ].map((step, index) => {
-      const isActive = statusStepIndex[order.orderStatus.toLowerCase()] >= index;
-      return (
-        <div
-          key={index}
-          className="text-center"
-          style={{ flex: 1, zIndex: 1 }}
-        >
-          <div
-            className={`rounded-circle mx-auto mb-1 d-flex align-items-center justify-content-center ${
-              isActive ? "bg-success text-white" : "bg-light text-muted border"
-            }`}
-            style={{
-              width: "34px",
-              height: "34px",
-              fontSize: "16px",
-            }}
-          >
-            <FontAwesomeIcon icon={step.icon} />
-          </div>
-          <div style={{ fontSize: "13px" }}>{step.label}</div>
-        </div>
-      );
-    })}
-  </div>
-</div>
-
-
-
+                      <div className="d-flex justify-content-between mt-3 position-relative" style={{ top: "-10px" }}>
+                        {[
+                          { label: "Pending", icon: faClock },
+                          { label: "Processing", icon: faSpinner },
+                          { label: "Shipped", icon: faTruck },
+                          { label: "Delivered", icon: faBoxOpen },
+                        ].map((step, index) => {
+                          const isActive = statusStepIndex[order.orderStatus.toLowerCase()] >= index;
+                          return (
+                            <div key={index} className="text-center" style={{ flex: 1, zIndex: 1 }}>
+                              <div
+                                className={`rounded-circle mx-auto mb-1 d-flex align-items-center justify-content-center ${isActive ? "bg-success text-white" : "bg-light text-muted border"}`}
+                                style={{
+                                  width: "34px",
+                                  height: "34px",
+                                  fontSize: "16px",
+                                }}
+                              >
+                                <FontAwesomeIcon icon={step.icon} />
+                              </div>
+                              <div style={{ fontSize: "13px" }}>{step.label}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
 
                     <div className="shipping-box">
                       <h4>📦 Shipping Address</h4>
@@ -205,32 +193,82 @@ const UserOrder = () => {
                     <div className="product-box">
                       <h4>🧾 Ordered Products</h4>
                       <div className="product-grid">
-                        {order.products.map((product) => (
-                          <div key={product._id} className="product-card">
-                            <img
-                              src={`http://localhost:5000/${product.productId.thumbnail}`}
-                              alt={product.productId.name}
-                              className="product-image"
-                            />
-                            <h5>{product.productId.name}</h5>
-                            <p><strong>₹{product.productId.price}</strong></p>
-                            <p>Qty: {product.quantity}</p>
-                            <p className="desc">{product.productId.description}</p>
-                          </div>
-                        ))}
+                        {order.products.map((product, index) => {
+                          const p = product?.productId;
+                          return p ? (
+                            <div key={product._id || index} className="product-card">
+                              <img
+                                src={`http://localhost:5000/${p.thumbnail}`}
+                                alt={p.name}
+                                className="product-image"
+                              />
+                              <h5>{p.name}</h5>
+                              <p><strong>₹{p.price}</strong></p>
+                              <p>Qty: {product.quantity}</p>
+                              <p className="desc">{p.description}</p>
+                            </div>
+                          ) : (
+                            <div key={index} className="product-card">
+                              <p>This product is no longer available.</p>
+                            </div>
+                          );
+                        })}
                       </div>
                       <button
                         className="cancel-button"
-                        disabled={[
-                          "delivered",
-                          "cancelled",
-                          "user cancelled",
-                        ].includes(order.orderStatus.toLowerCase())}
+                        disabled={["delivered", "cancelled", "user cancelled"].includes(order.orderStatus.toLowerCase())}
                         onClick={() => handleCancel(order._id)}
                       >
                         Cancel Order
-                      </button>
+                      </button><br></br>
+                      {order.orderStatus.toLowerCase() !== "user cancelled" &&
+ order.orderStatus.toLowerCase() !== "cancelled" && (
+  <button
+    className="print-btn"
+    onClick={() => navigate(`/user/invoice/${order._id}`)}
+  >
+    View Invoice
+  </button>
+)}
+
+
+
                     </div>
+
+                    {/* 💰 Order Amount Details */}
+                    <div className="amount-breakdown">
+  <h4>🧾 Amount Breakdown</h4>
+  <table className="amount-table">
+    <tbody>
+      <tr>
+        <td>Product Total</td>
+        <td>₹{order.productTotal}</td>
+      </tr>
+      <tr>
+        <td>GST (18%)</td>
+        <td>₹{order.gst}</td>
+      </tr>
+      <tr>
+        <td>Delivery Charge</td>
+        <td>₹{order.deliveryCharge}</td>
+      </tr>
+
+      {/* Only show handling fee for COD */}
+      {order.paymentMethod === "COD" && (
+        <tr>
+          <td>Handling Fee</td>
+          <td>₹{order.handlingFee}</td>
+        </tr>
+      )}
+
+      <tr>
+        <td><strong>Total Amount</strong></td>
+        <td><strong>₹{order.totalPrice}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
                   </div>
                 ))
               )}
