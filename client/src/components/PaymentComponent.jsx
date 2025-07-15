@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import '../css/PaymentComponent.css';
 import { FaArrowLeft } from 'react-icons/fa';
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const PaymentComponent = () => {
   const location = useLocation();

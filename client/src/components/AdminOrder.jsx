@@ -18,14 +18,14 @@ import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AdminOrder = () => {
+  const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
   const [searchYear, setSearchYear] = useState("");
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -131,12 +131,18 @@ const AdminOrder = () => {
 };
 
 
-  if (loading) return <p>Loading orders...</p>;
+  
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
       <AdminNavbar />
+      {loading && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
+
       <div style={{ padding: "30px" }}>
         <div className="admin-order-container">
           <h2 className="admin-order-title">📦 Orders</h2>

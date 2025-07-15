@@ -31,6 +31,9 @@ import PaymentComponent from './components/PaymentComponent';
 import PaymentComponent1 from './components/PaymentComponent1';
 import Invoice from './components/Invoice';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoadingSpinner from "./components/LoadingSpinner";
+
+
 
 
 
@@ -75,6 +78,7 @@ function App() {
         
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
+      
     </>
   );
 }

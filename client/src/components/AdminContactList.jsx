@@ -5,13 +5,16 @@ import AdminNavbar from "../components/AdminNavbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/AdminContactList.css"; // <-- New CSS for clean UI
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AdminContactList = () => {
   const [contacts, setContacts] = useState([]);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
   const fetchContacts = async () => {
+    setLoading(true);
     try {
       const res = await axios.get("http://localhost:5000/admin/contactdetails", {
         withCredentials: true,
@@ -33,6 +36,8 @@ const AdminContactList = () => {
         toast.error("Failed to fetch contact details.");
         console.error("Fetch error:", err);
       }
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -43,6 +48,12 @@ const AdminContactList = () => {
   return (
   <div className="admin-contact-list">
     <AdminNavbar />
+    {loading && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
+
     <div className="admin-contact-container">
       <h2 className="admin-contact-heading">📩 Contact Messages</h2>
 

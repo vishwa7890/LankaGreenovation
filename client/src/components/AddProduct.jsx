@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/AddProduct.css";
 import AdminNavbar from "../components/AdminNavbar";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 const AddProduct = () => {
     const [product, setProduct] = useState({
         name: "",
@@ -12,6 +12,7 @@ const AddProduct = () => {
         detailedDescription: "",
         stockStatus: "In Stock",
         availablestock: 0,
+        category: "", // <-- added
         itemForm: "",
         productBenefits: "",
         scent: "",
@@ -31,7 +32,7 @@ const AddProduct = () => {
         rankInFaceMasks: "",
         dateFirstAvailable: ""
     });
-
+    const [loading, setLoading] = useState(false);
     const [images, setImages] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
     const [message, setMessage] = useState("");
@@ -75,6 +76,7 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData();
         Object.keys(product).forEach((key) => {
             formData.append(key, product[key]);
@@ -103,7 +105,8 @@ const AddProduct = () => {
                 shortDescription: "",
                 detailedDescription: "",
                 stockStatus: "In Stock",
-                availablestock: " ",
+                availablestock: 0, // fixed here
+                category: "",
                 itemForm: "",
                 productBenefits: "",
                 scent: "",
@@ -121,20 +124,56 @@ const AddProduct = () => {
                 itemDimensions: "",
                 bestSellersRank: "",
                 rankInFaceMasks: "",
+                dateFirstAvailable: ""
             });
             setImages([]);
             setThumbnail(null);
-        } catch (err) {
-            setMessage(err.response?.data?.error || "Failed to add product");
-            setPopupType("error");
-            setShowPopup(true);
-            setTimeout(() => setShowPopup(false), 3000);
-        }
+        }  catch (err) {
+    setMessage(err.response?.data?.error || "Failed to add product");
+    setPopupType("error");
+    setShowPopup(true);
+  } finally {
+    setLoading(false); // Stop loading
+    setTimeout(() => setShowPopup(false), 3000);
+  }
     };
+
+    const fields = [
+        { label: "Product Name", name: "name" },
+        { label: "Brand", name: "brand" },
+        { label: "Price", name: "price", type: "number" },
+        { label: "Stock", name: "availablestock", type: "number" },
+        { label: "Short Description", name: "shortDescription", textarea: true },
+        { label: "Detailed Description", name: "detailedDescription", textarea: true },
+        { label: "Category", name: "category", select: true, options: ["Food Product", "Cosmetics"] },
+        { label: "Item Form", name: "itemForm" },
+        { label: "Product Benefits", name: "productBenefits" },
+        { label: "Scent", name: "scent" },
+        { label: "Skin Type", name: "skinType" },
+        { label: "Net Quantity", name: "netQuantity" },
+        { label: "Number of Items", name: "numberOfItems", type: "number" },
+        { label: "Recommended Uses", name: "recommendedUses" },
+        { label: "UPC", name: "upc" },
+        { label: "Manufacturer", name: "manufacturer" },
+        { label: "Country of Origin", name: "countryOfOrigin" },
+        { label: "Item Part Number", name: "itemPartNumber" },
+        { label: "Product Dimensions", name: "productDimensions" },
+        { label: "ASIN", name: "asin" },
+        { label: "Item Weight", name: "itemWeight" },
+        { label: "Item Dimensions", name: "itemDimensions" },
+        { label: "Best Sellers Rank", name: "bestSellersRank" },
+        { label: "Rank in Face Masks", name: "rankInFaceMasks" }
+    ];
 
     return (
         <div>
             <AdminNavbar />
+            {loading && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
+
             <div className="add-product-wrapper">
                 {showPopup && (
                     <div className={`popup-message ${popupType}`}>
@@ -146,34 +185,23 @@ const AddProduct = () => {
                     <h2 className="add-product-title">Add Product</h2>
 
                     <form onSubmit={handleSubmit} className="add-product-form" encType="multipart/form-data">
-                        {[
-                            { label: "Product Name", name: "name" },
-                            { label: "Brand", name: "brand" },
-                            { label: "Price", name: "price", type: "number" },
-                            { label: "Stock", name: "availablestock", type: "number" },
-                            { label: "Short Description", name: "shortDescription", textarea: true },
-                            { label: "Detailed Description", name: "detailedDescription", textarea: true },
-                            { label: "Item Form", name: "itemForm" },
-                            { label: "Product Benefits", name: "productBenefits" },
-                            { label: "Scent", name: "scent" },
-                            { label: "Skin Type", name: "skinType" },
-                            { label: "Net Quantity", name: "netQuantity" },
-                            { label: "Number of Items", name: "numberOfItems", type: "number" },
-                            { label: "Recommended Uses", name: "recommendedUses" },
-                            { label: "UPC", name: "upc" },
-                            { label: "Manufacturer", name: "manufacturer" },
-                            { label: "Country of Origin", name: "countryOfOrigin" },
-                            { label: "Item Part Number", name: "itemPartNumber" },
-                            { label: "Product Dimensions", name: "productDimensions" },
-                            { label: "ASIN", name: "asin" },
-                            { label: "Item Weight", name: "itemWeight" },
-                            { label: "Item Dimensions", name: "itemDimensions" },
-                            { label: "Best Sellers Rank", name: "bestSellersRank" },
-                            { label: "Rank in Face Masks", name: "rankInFaceMasks" },
-                        ].map(({ label, name, textarea, type = "text" }) => (
+                        {fields.map(({ label, name, textarea, select, options = [], type = "text" }) => (
                             <div className="form-group" key={name}>
                                 <label className="form-label">{label}</label>
-                                {textarea ? (
+                                {select ? (
+                                    <select
+                                        name={name}
+                                        className="form-select"
+                                        value={product[name]}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">Select {label}</option>
+                                        {options.map((option) => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                ) : textarea ? (
                                     <textarea name={name} className="form-input" value={product[name]} onChange={handleInputChange} />
                                 ) : (
                                     <input type={type} name={name} className="form-input" value={product[name]} onChange={handleInputChange} />
@@ -200,38 +228,36 @@ const AddProduct = () => {
                             <input type="file" accept="image/*" onChange={handleThumbnailChange} />
                             {thumbnail && (
                                 <div className="file-preview" style={{ maxWidth: "100px", marginTop: "10px" }}>
-                                <div className="file-preview-item" style={{ position: "relative" }}>
-                                    <img
-                                    src={URL.createObjectURL(thumbnail)}
-                                    alt="Thumbnail Preview"
-                                    style={{ height: "80px", width: "80px", objectFit: "cover", borderRadius: "6px" }}
-                                    />
-                                    <button
-                                    type="button"
-                                    className="remove-btn"
-                                    onClick={() => setThumbnail(null)}
-                                    aria-label="Remove thumbnail"
-                                    >
-                                    </button>
-                                </div>
+                                    <div className="file-preview-item" style={{ position: "relative" }}>
+                                        <img
+                                            src={URL.createObjectURL(thumbnail)}
+                                            alt="Thumbnail Preview"
+                                            style={{ height: "80px", width: "80px", objectFit: "cover", borderRadius: "6px" }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="remove-btn"
+                                            onClick={() => setThumbnail(null)}
+                                            aria-label="Remove thumbnail"
+                                        ></button>
+                                    </div>
                                 </div>
                             )}
-                            </div>
-
+                        </div>
 
                         <div className="form-group">
                             <label className="form-label">Product Images (Max: 5)</label>
                             <input type="file" multiple accept="image/*" onChange={handleImageChange} />
                             {images.length > 0 && (
-                        <div className="file-preview">
-                            {images.map((img, index) => (
-                            <div key={index} className="file-preview-item">
-                                <img src={URL.createObjectURL(img)} alt="Preview" />
-                                <button type="button" className="remove-btn" onClick={() => removeImage(index)}></button>
-                            </div>
-                            ))}
-                        </div>
-                        )}
+                                <div className="file-preview">
+                                    {images.map((img, index) => (
+                                        <div key={index} className="file-preview-item">
+                                            <img src={URL.createObjectURL(img)} alt="Preview" />
+                                            <button type="button" className="remove-btn" onClick={() => removeImage(index)}></button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <button type="submit" className="submit-button">Add Product</button>

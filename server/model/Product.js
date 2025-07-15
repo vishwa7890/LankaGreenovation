@@ -16,7 +16,13 @@ const productSchema = new mongoose.Schema({
     },
     availablestock: { type: Number, required: true },
 
-    // Nested structure for clarity
+    // Add category field here
+    category: { 
+        type: String,
+        enum: ['Food Product', 'Cosmetics'],
+        required: true
+    },
+
     specs: {
         itemForm: String,
         productBenefits: String,
@@ -34,7 +40,6 @@ const productSchema = new mongoose.Schema({
         productDimensions: String,
         asin: String
     },
-
     additionalInfo: {
         itemWeight: String,
         itemDimensions: String,

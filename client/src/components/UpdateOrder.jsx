@@ -4,11 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/UpdateOrder.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UpdateOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [orderStatus, setOrderStatus] = useState("Pending");
+  const [isFinalStatus, setIsFinalStatus] = useState(false);
+  const [finalLockedMessage, setFinalLockedMessage] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -21,7 +24,12 @@ const UpdateOrder = () => {
 
         if (response.data.orders) {
           setOrder(response.data.orders);
-          setOrderStatus(response.data.orders.orderStatus || "Pending");
+          const status = response.data.orders.orderStatus || "Pending";
+          setOrderStatus(status);
+          if (["delivered", "cancelled", "user cancelled"].includes(status.toLowerCase())) {
+            setIsFinalStatus(true);
+            setFinalLockedMessage(true);
+          }
         } else {
           toast.error("Order not found.");
         }
@@ -44,14 +52,30 @@ const UpdateOrder = () => {
         { withCredentials: true }
       );
       toast.success("Order status updated successfully!");
-      setTimeout(() => navigate("/admin/orders"), 1500);
+
+      // ✅ Lock if final status
+      if (
+        ["delivered", "cancelled", "user cancelled"].includes(
+          orderStatus.toLowerCase()
+        )
+      ) {
+        setIsFinalStatus(true);
+        setFinalLockedMessage(true);
+      }
     } catch (error) {
       console.error("Error updating order:", error);
       toast.error("Failed to update order. Please try again.");
     }
   };
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading order...</p>;
+  if (loading) {
+  return (
+    <div className="loading-overlay">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
 
   return (
     <div
@@ -62,7 +86,6 @@ const UpdateOrder = () => {
       }}
     >
       <div className="update-order-container">
-        {/* 🔙 Back Button */}
         <button className="back-btn" onClick={() => navigate("/admin/orders")}>
           Back
         </button>
@@ -82,7 +105,7 @@ const UpdateOrder = () => {
                 value={orderStatus}
                 onChange={(e) => setOrderStatus(e.target.value)}
                 className="status-select"
-                disabled={["delivered", "cancelled", "user cancelled"].includes(orderStatus.toLowerCase())}
+                disabled={isFinalStatus}
               >
                 <option value="Pending">Pending</option>
                 <option value="Processing">Processing</option>
@@ -91,9 +114,18 @@ const UpdateOrder = () => {
                 <option value="Cancelled">Cancelled</option>
                 <option value="User Cancelled">User Cancelled</option>
               </select>
-              <button onClick={handleUpdate} className="update-button">
+              <button
+                onClick={handleUpdate}
+                className="update-button"
+                disabled={isFinalStatus}
+              >
                 ✅ Update Order
               </button>
+              {finalLockedMessage && (
+                <p style={{ color: "green", marginTop: "10px", fontWeight: "bold" }}>
+                  ✅ Final Status Locked — No further updates allowed.
+                </p>
+              )}
             </div>
 
             <hr className="section-divider" />

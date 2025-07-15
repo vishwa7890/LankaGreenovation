@@ -95,7 +95,7 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
         const imagePaths = req.files['images'] ? req.files['images'].map(file => file.path) : [];
         const thumbnailPath = req.files['thumbnail'] ? req.files['thumbnail'][0].path : null;
 
-        // Destructure basic fields
+        // Destructure basic fields including category
         const {
             name,
             brand,
@@ -104,6 +104,7 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
             shortDescription,
             detailedDescription,
             stockStatus,
+            category, // <-- added here
 
             // specs fields
             itemForm,
@@ -114,7 +115,6 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
             numberOfItems,
             recommendedUses,
             upc,
-
 
             // technical details
             manufacturer,
@@ -138,6 +138,7 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
             shortDescription,
             detailedDescription,
             stockStatus,
+            category, // <-- added here
             images: imagePaths,
             thumbnail: thumbnailPath,
 
@@ -158,7 +159,6 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
                 productDimensions,
                 asin
             },
-
             additionalInfo: {
                 itemWeight,
                 itemDimensions,
@@ -167,6 +167,7 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
                 rankInFaceMasks
             },
         });
+
         await newProduct.save();
 
         res.status(201).json({ message: 'Product added successfully!', product: newProduct });
@@ -175,6 +176,7 @@ router.post('/add-product', upload, verifyAdmin, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 
 
@@ -211,6 +213,7 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       shortDescription,
       detailedDescription,
       stockStatus,
+      category, // <-- added
 
       // specs fields
       itemForm,
@@ -245,6 +248,7 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       shortDescription,
       detailedDescription,
       stockStatus,
+      category, // <-- added
       ...(imagePaths && { images: imagePaths }),
       ...(thumbnailPath && { thumbnail: thumbnailPath }),
 
@@ -291,6 +295,7 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
     res.status(500).json({ message: "Error updating product", error: error.message });
   }
 });
+
 
 
 router.get("/get-product/:id",verifyAdmin,async(req,res)=>{

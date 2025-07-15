@@ -8,6 +8,7 @@ import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UserLogin = () => {
   const [email, setEmail] = useState("");

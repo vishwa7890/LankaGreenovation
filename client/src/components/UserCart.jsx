@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/UserCart.css";
 import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UserCart = () => {
   const [products, setProducts] = useState([]);
@@ -37,7 +38,7 @@ const UserCart = () => {
         setProducts(formattedProducts);
       } catch (err) {
         setError(err.response?.data?.message || "Something went wrong");
-        toast.error("Failed to fetch cart data.");
+        toast.error("Your Cart is Empty");
       } finally {
         setLoading(false);
       }
@@ -86,6 +87,14 @@ const UserCart = () => {
       toast.error("Failed to update quantity.");
     }
   };
+  if (loading) {
+  return (
+    <div className="loading-overlay">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
 
   return (
     <div>
@@ -119,7 +128,7 @@ const UserCart = () => {
             <FaShoppingCart /> Your Cart
           </h2>
 
-          {loading && <p className="loading">Loading products...</p>}
+          
           {error && <p className="error-message">{error}</p>}
 
           {!loading && !error && (

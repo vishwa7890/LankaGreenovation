@@ -2,12 +2,15 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import "../css/Navbar.css";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const [dropdown, setDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // ← manage toggle
+const navigate = useNavigate();
 
   return (
     <nav className="custom-navbar navbar navbar-expand-lg navbar-light bg-light sticky-top">
@@ -70,10 +73,17 @@ const Navbar = () => {
                 </button>
                 {dropdown && (
                   <div className="user-dropdown-menu">
-                    <button className="dropdown-item" onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}>Logout</button>
+                    <button
+  className="dropdown-item"
+  onClick={() => {
+    logout();
+    setMenuOpen(false);
+    navigate("/user/login"); // 👈 navigate to login page
+  }}
+>
+  Logout
+</button>
+
                   </div>
                 )}
               </li>

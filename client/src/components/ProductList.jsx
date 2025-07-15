@@ -5,6 +5,7 @@ import "../css/ProductList.css";
 import AdminNavbar from "../components/AdminNavbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);

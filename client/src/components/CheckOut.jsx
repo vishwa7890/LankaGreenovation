@@ -14,6 +14,34 @@ const CheckOut = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
+  const [deleteId, setDeleteId] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const triggerDelete = (id) => {
+  setDeleteId(id);
+  setShowConfirm(true);
+};
+
+const confirmDelete = async () => {
+  try {
+    const res = await axios.delete(`http://localhost:5000/user/delete-address/${deleteId}`, {
+      withCredentials: true,
+    });
+    toast.success(res.data.message || "Address deleted successfully!");
+    setAddresses((prev) => prev.filter((addr) => addr._id !== deleteId));
+  } catch (error) {
+    toast.error("Failed to delete address");
+    console.error(error);
+  } finally {
+    setShowConfirm(false);
+    setDeleteId(null);
+  }
+};
+
+const cancelDelete = () => {
+  setShowConfirm(false);
+  setDeleteId(null);
+};
+
   const handleAdd = () => {
     navigate("/user/addadress");
   };
@@ -36,6 +64,10 @@ const CheckOut = () => {
       })
       .catch(err => toast.error("Failed to fetch cart"));
   }, []);
+  const handleEdit = (id) => {
+  navigate(`/user/updateaddress/${id}`);
+};
+
 
   const handleCheckout = async () => {
     if (!selectedAddress) return toast.error("Please select an address.");
@@ -141,9 +173,11 @@ const CheckOut = () => {
                     {addr.addressLine1}, {addr.city}, {addr.state},{" "}
                     {addr.postalCode}, {addr.country}
                     <button onClick={() => handleEdit(addr._id)}>Edit</button>
-                    <button onClick={() => handleDelete(addr._id)}>Delete</button>
+                    <button onClick={() => triggerDelete(addr._id)}>Delete</button>
                   </p>
                 </label>
+               
+
               </div>
             ))
           ) : (
@@ -183,6 +217,18 @@ const CheckOut = () => {
           Place Order
         </button>
       </div>
+       {showConfirm && (
+  <div className="delete-modal-overlay">
+    <div className="delete-modal">
+      <h4>❗ Confirm Deletion</h4>
+      <p>Are you sure you want to delete this address?</p>
+      <div className="delete-modal-buttons">
+        <button className="confirm-btn" onClick={confirmDelete}>Yes, Delete</button>
+        <button className="cancel-btn" onClick={cancelDelete}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

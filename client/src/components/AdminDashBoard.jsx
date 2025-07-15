@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminNavbar from "../components/AdminNavbar";
 import "../css/AdminDashboard.css"; // ⬅️ Make sure to import the CSS
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AdminDashBoard = () => {
   const [admin, setAdmin] = useState(null);

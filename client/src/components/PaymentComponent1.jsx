@@ -4,11 +4,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import '../css/PaymentComponent.css';
 import { FaArrowLeft } from 'react-icons/fa';
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const PaymentComponent1 = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addressId, products } = location.state || {};
+  const [loading, setLoading] = useState(true);
+const [placingOrder, setPlacingOrder] = useState(false);
+
 
   const [summary, setSummary] = useState(null);
   const [orderDetails, setOrderDetails] = useState(null);
@@ -20,6 +24,7 @@ const PaymentComponent1 = () => {
   useEffect(() => {
   const fetchSummary = async () => {
     try {
+      setLoading(true);
       const res = await axios.post(
         'http://localhost:5000/user/order-summary',
         {
@@ -35,6 +40,8 @@ const PaymentComponent1 = () => {
       setSummary(res.data);
     } catch (err) {
       toast.error('Failed to load order summary');
+    }finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -44,6 +51,7 @@ const PaymentComponent1 = () => {
 
   const handlePayment = async () => {
   try {
+    setPlacingOrder(true);
     const res = await axios.post(
       'http://localhost:5000/user/create-order-cod',
       {
@@ -67,12 +75,19 @@ const PaymentComponent1 = () => {
   } catch (error) {
     console.error('Payment initiation error:', error);
     toast.error('Failed to place order');
+  }finally {
+    setPlacingOrder(false); // Stop placing
   }
 };
 
 
-  return (
+  return loading ? (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+) : (
     <div className="payment-wrapper">
+      
       <div className="payment-card">
         <button className="back-btn" onClick={() => navigate(-1)}>
           <FaArrowLeft style={{ marginRight: '6px' }} /> Back
@@ -137,13 +152,23 @@ const PaymentComponent1 = () => {
           </tbody>
         </table>
 
-        {!orderDetails && (
-          <div className="pay-container">
-            <button className="pay-btn" onClick={handlePayment}>
-              Order Now ₹{summary?.totalPrice || ''}
-            </button>
-          </div>
-        )}
+{!orderDetails && (
+  <div className="pay-container">
+    <button
+      className="pay-btn"
+      onClick={handlePayment}
+      disabled={placingOrder}
+    >
+      Order Now ₹{summary?.totalPrice || ''}
+    </button>
+  </div>
+)}
+{placingOrder && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
+
       </div>
     </div>
   );

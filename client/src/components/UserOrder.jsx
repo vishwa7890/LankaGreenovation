@@ -11,7 +11,7 @@ import {
   faTruck,
   faBoxOpen
 } from "@fortawesome/free-solid-svg-icons";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 const UserOrder = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,6 @@ const UserOrder = () => {
         const sortedOrders = response.data.orders.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-
         setOrders(sortedOrders);
       } catch (err) {
         setError("Failed to fetch orders");
@@ -67,6 +66,14 @@ const UserOrder = () => {
       console.error("Error cancelling order:", error.response?.data || error.message);
     }
   };
+if (loading) {
+  return (
+    <>
+      <Navbar />
+      <LoadingSpinner />
+    </>
+  );
+}
 
   return (
     <div>
@@ -97,8 +104,6 @@ const UserOrder = () => {
           </button>
 
           <h2 className="order-title">🛍️ Your Orders</h2>
-
-          {loading && <p className="order-loading">Loading orders...</p>}
           {error && <p className="order-error">{error}</p>}
 
           {!loading && !error && (

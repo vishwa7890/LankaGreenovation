@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/SetPassword.css"; // Your custom styles
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");

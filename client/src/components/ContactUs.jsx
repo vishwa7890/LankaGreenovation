@@ -7,6 +7,7 @@ import "aos/dist/aos.css";
 import "../css/ContactUs.css";
 import { FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ContactUs = () => {
   const [name, setName] = useState("");

@@ -12,10 +12,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-
-// Import required modules
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Home = () => {
   useEffect(() => {

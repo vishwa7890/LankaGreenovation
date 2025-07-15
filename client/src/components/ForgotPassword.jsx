@@ -7,12 +7,17 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "./Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post("http://localhost:5000/user/forgot-password", {
         email,
@@ -23,12 +28,19 @@ const ForgotPassword = () => {
       toast.error(
         error.response?.data?.message || "Failed to send OTP. Please try again."
       );
-    }
+    }finally {
+    setLoading(false); // Stop spinner
+  }
   };
 
   return (
     <>
       <Navbar />
+      {loading && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
       <div className="signUpPage">
         <div className="signUpContainer">
           <h2 className="signupTitle">Forgot Password</h2>

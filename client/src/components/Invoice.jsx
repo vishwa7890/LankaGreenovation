@@ -3,6 +3,7 @@ import axios from 'axios';
 import '../css/Invoice.css';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; 
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Invoice = () => {
   const { orderId } = useParams();
@@ -40,7 +41,7 @@ const Invoice = () => {
         {/* 🖼️ Replace MyStore heading with image */}
         <header className="invoice-header">
           <img
-            src="/pdf_head.jpeg"
+            src="/invo.jpg"
             alt="Lanka Greenovation"
             className="invoice-logo"
           />
@@ -48,7 +49,15 @@ const Invoice = () => {
 
         <section className="invoice-meta">
           <p><strong>Order ID:</strong> {order._id}</p>
-          <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+          <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString('en-IN', {
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true
+})}</p>
+
           <p><strong>Payment:</strong> {order.paymentMethod} - {order.paymentStatus}</p>
         </section>
 

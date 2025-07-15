@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Modal from "react-modal";
 import "../css/Gallery.css";
 
+   
 const images = [
   { src: "/gallery1.jpg", caption: "Startup India Certified!" },
   { src: "/gallery2.jpeg", caption: "Bridging Innovation & Strategy" },

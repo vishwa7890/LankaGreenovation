@@ -277,6 +277,7 @@
   border-top: 1px dashed #9ae6b4;
   padding-top: 10px;
 }
+
 @media (max-width: 768px) {
   .amount-breakdown {
     padding: 0.8rem;

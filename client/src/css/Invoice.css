@@ -84,6 +84,11 @@ table th, table td {
 .back-btn:hover {
   background-color: #388e3c;
 }
+@media print {
+  .back-btn, .print-btn {
+    display: none !important;
+  }
+}
 
 
 

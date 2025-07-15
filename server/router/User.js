@@ -451,25 +451,30 @@ router.get("/cart", verifyUser, async (req, res) => {
 router.delete("/remove/:productId", verifyUser, async (req, res) => {
   try {
     const { productId } = req.params;
-    const cart = await Cart.findOne({ userId: req.user.id }).populate("items.productId"); // Populate product details
 
+    const cart = await Cart.findOne({ userId: req.user.id }).populate("items.productId"); 
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    
-    cart.items = cart.items.filter((item) => item.productId._id.toString() !== productId);
+    // ✅ Filter only valid products
+    cart.items = cart.items.filter(
+      (item) => item.productId && item.productId._id.toString() !== productId
+    );
 
-    
+    // ✅ Recalculate totalPrice safely
     cart.totalPrice = cart.items.reduce((total, item) => {
-      return total + item.quantity * (item.productId.price || 0); 
+      if (!item.productId) return total;
+      return total + item.quantity * (item.productId.price || 0);
     }, 0);
 
     await cart.save();
     res.status(200).json({ message: "Item removed", cart });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error removing item", error: error.message });
   }
 });
+
 
 
 

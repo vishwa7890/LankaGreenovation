@@ -16,7 +16,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/AddAddress.css";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AddAddress = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ const AddAddress = () => {
     postalCode: "",
     landmark: "",
   });
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -41,6 +41,7 @@ const handleBack=()=>{
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
     try {
       const response = await axios.post(
         "http://localhost:5000/user/addadress",
@@ -68,6 +69,7 @@ const handleBack=()=>{
 
       setTimeout(() => navigate("/user/checkout"), 2500);
     } catch (error) {
+      setLoading(false);
       toast.error(error.response?.data?.message || "Error adding address", {
         position: "top-center",
         autoClose: 2000,
@@ -89,6 +91,7 @@ const handleBack=()=>{
       }}
     >
       <ToastContainer />
+      {loading && <LoadingSpinner />}
       <div className="add-address-card">
         <button
                 onClick={handleBack}
@@ -216,8 +219,12 @@ style={{ marginRight: "5px" }} /> Back
             />
           </div>
 
-          <button type="submit" className="add-address-button">
-            Add Address
+          <button
+            type="submit"
+            className="add-address-button"
+            disabled={loading}
+          >
+            {loading ? "Adding..." : "Add Address"}
           </button>
         </form>
       </div>

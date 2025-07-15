@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/UpdateAddress.css"; // Make sure this file exists
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UpdateAddress = () => {
   const { id: addressId } = useParams();

@@ -9,13 +9,16 @@ import "../css/EditProduct.css";
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [thumbnail, setThumbnail] = useState(null);
   const [images, setImages] = useState([]);
+
   const [product, setProduct] = useState({
     name: "", brand: "", price: "", availablestock: "",
     shortDescription: "", detailedDescription: "", stockStatus: "",
+    category: "", // <-- added
     itemForm: "", productBenefits: "", scent: "", skinType: "",
     netQuantity: "", numberOfItems: "", recommendedUses: "", upc: "",
     manufacturer: "", countryOfOrigin: "", itemPartNumber: "",
@@ -32,12 +35,13 @@ const EditProduct = () => {
           setProduct({
             name: p.name || "", brand: p.brand || "", price: p.price || "", availablestock: p.availablestock || "",
             shortDescription: p.shortDescription || "", detailedDescription: p.detailedDescription || "", stockStatus: p.stockStatus || "",
+            category: p.category || "", // <-- handle fetched category
             itemForm: p.specs?.itemForm || "", productBenefits: p.specs?.productBenefits || "", scent: p.specs?.scent || "", skinType: p.specs?.skinType || "",
             netQuantity: p.specs?.netQuantity || "", numberOfItems: p.specs?.numberOfItems || "", recommendedUses: p.specs?.recommendedUses || "", upc: p.specs?.upc || "",
             manufacturer: p.technicalDetails?.manufacturer || "", countryOfOrigin: p.technicalDetails?.countryOfOrigin || "", itemPartNumber: p.technicalDetails?.itemPartNumber || "",
             productDimensions: p.technicalDetails?.productDimensions || "", asin: p.technicalDetails?.asin || "",
             itemWeight: p.additionalInfo?.itemWeight || "", itemDimensions: p.additionalInfo?.itemDimensions || "",
-            bestSellersRank: p.additionalInfo?.bestSellersRank || "", rankInFaceMasks: p.additionalInfo?.rankInFaceMasks || "",
+            bestSellersRank: p.additionalInfo?.bestSellersRank || "", rankInFaceMasks: p.additionalInfo?.rankInFaceMasks || ""
           });
         } else toast.error("Product not found");
       } catch (err) {
@@ -111,17 +115,25 @@ const EditProduct = () => {
         </div>
 
         <form onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Basic Info */}
           <input type="text" name="name" value={product.name} onChange={handleChange} placeholder="Product Name" required />
           <input type="text" name="brand" value={product.brand} onChange={handleChange} placeholder="Brand" required />
           <input type="number" name="price" value={product.price} onChange={handleChange} placeholder="Price" required />
           <input type="number" name="availablestock" value={product.availablestock} onChange={handleChange} placeholder="Available Stock" required />
           <textarea name="shortDescription" value={product.shortDescription} onChange={handleChange} placeholder="Short Description" required />
           <textarea name="detailedDescription" value={product.detailedDescription} onChange={handleChange} placeholder="Detailed Description" required />
+
           <select name="stockStatus" value={product.stockStatus} onChange={handleChange} required>
             <option value="">Select Stock Status</option>
             <option value="In Stock">In Stock</option>
             <option value="Out of Stock">Out of Stock</option>
+            <option value="Limited Stock">Limited Stock</option>
+          </select>
+
+          {/* ✅ Category Field */}
+          <select name="category" value={product.category} onChange={handleChange} required>
+            <option value="">Select Category</option>
+            <option value="Food Product">Food Product</option>
+            <option value="Cosmetics">Cosmetics</option>
           </select>
 
           {/* Specs */}
@@ -147,7 +159,7 @@ const EditProduct = () => {
           <input name="bestSellersRank" value={product.bestSellersRank} onChange={handleChange} placeholder="Best Sellers Rank" />
           <input name="rankInFaceMasks" value={product.rankInFaceMasks} onChange={handleChange} placeholder="Rank In Face Masks" />
 
-          {/* Thumbnail */}
+          {/* Thumbnail Upload */}
           <input type="file" name="thumbnail" onChange={handleThumbnailChange} />
           {thumbnail && (
             <div className="file-preview">
@@ -158,7 +170,7 @@ const EditProduct = () => {
             </div>
           )}
 
-          {/* Images */}
+          {/* Multiple Images Upload */}
           <input type="file" name="images" multiple onChange={handleImagesChange} />
           {imagePreviews.length > 0 && (
             <div className="file-preview">

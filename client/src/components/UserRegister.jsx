@@ -7,9 +7,12 @@ import { faUser, faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "./Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UserRegister = () => {
   const [username, setUserName] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const navigate = useNavigate();
@@ -42,6 +45,7 @@ const UserRegister = () => {
     }
 
     try {
+      setLoading(true);
       const res = await axios.post("http://localhost:5000/user/register", {
         username,
         email,
@@ -57,12 +61,20 @@ const UserRegister = () => {
       } else {
         toast.error(errMsg || "Registration failed!");
       }
-    }
+    }finally {
+    setLoading(false); // stop spinner
+  }
   };
 
   return (
     <>
       <Navbar />
+      {loading && (
+  <div className="loading-overlay">
+    <LoadingSpinner />
+  </div>
+)}
+
       <div className="signUpPage">
         <div className="signUpContainer">
           <h2 className="signupTitle">User Registration</h2>
@@ -104,7 +116,10 @@ const UserRegister = () => {
               />
             </div>
 
-            <button type="submit" className="signupBtn">Register</button>
+            <button type="submit" className="signupBtn" disabled={loading}>
+  {loading ? "Registering..." : "Register"}
+</button>
+
 
             <p className="loginLink">
               Already have an account? <a href="/user/login">Login</a>
