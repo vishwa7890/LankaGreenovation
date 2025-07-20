@@ -62,7 +62,7 @@ const ContactUs = () => {
             </p>
             <p data-aos="zoom-in">
               <FaPhoneAlt className="icon" />
-              <a href="tel:+919944215859">+91 99442 15859</a>
+              <a href="tel:+919095084840">+91 90950 84840</a>
             </p>
           </div>
           <form onSubmit={handleSubmit}>
