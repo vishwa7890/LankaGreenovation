@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     // Add category field here
     category: { 
         type: String,
-        enum: ['Food Product', 'Cosmetics'],
+        enum: ['Food Product', 'Cosmetics','Biofertilizers'],
         required: true
     },
 

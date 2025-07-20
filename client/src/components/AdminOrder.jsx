@@ -107,7 +107,7 @@ const AdminOrder = () => {
     const gst = parseFloat((productTotal * 0.18).toFixed(2));
     const deliveryCharge = 50;
     const handlingFee = order.paymentMethod === "COD" ? 30 : 0;
-    const finalAmount = productTotal + gst + deliveryCharge + handlingFee;
+    const finalAmount = Math.round(productTotal + gst + deliveryCharge + handlingFee);
 
     return {
       "Order ID": order._id,
@@ -168,17 +168,22 @@ const AdminOrder = () => {
               ))}
             </select>
             <select
-              value={searchYear}
-              onChange={(e) => setSearchYear(e.target.value)}
-              className="filter-input"
-            >
-              <option value="">Year</option>
-              {[2023, 2024, 2025].map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+  value={searchYear}
+  onChange={(e) => setSearchYear(e.target.value)}
+  className="filter-input"
+>
+  <option value="">Year</option>
+  {Array.from({ length: 5 + 1 + 10 }, (_, i) => {
+    const currentYear = new Date().getFullYear();
+    const year = currentYear - 5 + i; // start from 5 years ago
+    return (
+      <option key={year} value={year}>
+        {year}
+      </option>
+    );
+  })}
+</select>
+
             <button className="clear-filter-btn" onClick={() => {
               setSearchTerm("");
               setSearchMonth("");

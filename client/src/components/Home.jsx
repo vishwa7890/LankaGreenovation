@@ -79,7 +79,7 @@ const Home = () => {
           <div className="row mt-4">
             {[
               { img: "/bio_fertilizer.png", title: "Biofertilizers", desc: "Biofertilizers boost soil fertility by enhancing microbes and nutrient uptake." },
-              { img: "/cosmetic_bioproducts.png", title: "Cosmetic Bioproducts", desc: "Natural skincare solutions with herbal face masks and organic sunscreens." },
+              { img: "/cosmetic_bioproducts.png", title: "Bio Cosmetic", desc: "Natural skincare solutions with herbal face masks and organic sunscreens." },
               { img: "/functional foods.jpg", title: "Functional Food", desc: "Natural nutrition with functional foods and organic superfoods." }
             ].map((product, index) => (
               <div className="col-md-4" data-aos="flip-up" key={index}>

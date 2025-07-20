@@ -116,6 +116,16 @@ const UserProducts = () => {
     (currentPageFood - 1) * itemsPerPage,
     currentPageFood * itemsPerPage
   );
+  const [currentPageBiofertilizers, setCurrentPageBiofertilizers] = useState(1);
+
+const filteredBiofertilizers = filteredProducts.filter(p => p.category === "Biofertilizers");
+const sortedBiofertilizers = sortProducts(filteredBiofertilizers);
+const totalPagesBiofertilizers = Math.ceil(sortedBiofertilizers.length / itemsPerPage);
+const displayedBiofertilizers = sortedBiofertilizers.slice(
+  (currentPageBiofertilizers - 1) * itemsPerPage,
+  currentPageBiofertilizers * itemsPerPage
+);
+
 
   const renderPagination = (currentPage, totalPages, setPage) => (
     <div className="pagination">
@@ -182,7 +192,7 @@ const UserProducts = () => {
           <>
             {/* Food Products */}
             <div className="user-product-section">
-              <h3 className="section-heading"><span className="section-icon">🍽️</span> Food Products</h3>
+              <h3 className="section-heading"><span className="section-icon">🍽️</span> Functional Food</h3>
               {sortedFood.length === 0 ? (
                 <p>No Food Products Available</p>
               ) : (
@@ -223,7 +233,7 @@ const UserProducts = () => {
 
             {/* Cosmetics */}
             <div className="user-product-section">
-              <h3 className="section-heading"><span className="section-icon">💄</span> Cosmetics</h3>
+              <h3 className="section-heading"><span className="section-icon">💄</span> Bio Cosmetic</h3>
               {sortedCosmetics.length === 0 ? (
                 <p>No Cosmetics Available</p>
               ) : (
@@ -236,6 +246,22 @@ const UserProducts = () => {
                 </>
               )}
             </div>
+            {/* Biofertilizers */}
+<div className="user-product-section">
+  <h3 className="section-heading"><span className="section-icon">🌿</span> Biofertilizer</h3>
+  {sortedBiofertilizers.length === 0 ? (
+    <p>No Biofertilizers Available</p>
+  ) : (
+    <>
+      <div className="user-product-grid">
+        {displayedBiofertilizers.map(renderProductCard)}
+      </div>
+      {sortedBiofertilizers.length > 6 &&
+        renderPagination(currentPageBiofertilizers, totalPagesBiofertilizers, setCurrentPageBiofertilizers)}
+    </>
+  )}
+</div>
+
           </>
         )}
       </div>

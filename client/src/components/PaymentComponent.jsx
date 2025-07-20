@@ -9,7 +9,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 const PaymentComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY;
   const { addressId, products } = location.state || {};
   const [summary, setSummary] = useState(null);
   const paymentMethod = "Online";
@@ -45,7 +45,7 @@ const PaymentComponent = () => {
       const { order } = response.data;
 
       const options = {
-        key: 'rzp_live_gpNbVGKz3wc8cQ',
+        key: razorpayKey,
         amount: order.amount,
         currency: order.currency,
         name: 'Lanka Greenovation',

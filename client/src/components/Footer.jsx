@@ -33,7 +33,7 @@ const Footer = () => {
         <div className="footer-section">
           <h4 className="footer-heading">Contact</h4>
           <p><FaMapMarkerAlt className="footer-icon" /> D NO6/780-16, R. S. Nagar, Virudhunagar-626001, Tamil Nadu</p>
-          <p><FaPhoneAlt className="footer-icon" /> +91 99442 15859</p>
+          <p><FaPhoneAlt className="footer-icon" /> +91 90950 84840</p>
           <p><FaPhoneAlt className="footer-icon" /> +91 77083 85859</p>
           <p><FaEnvelope className="footer-icon" />
             <a href="mailto:lankagreenovation@gmail.com">lankagreenovation@gmail.com</a>

@@ -134,6 +134,7 @@ const EditProduct = () => {
             <option value="">Select Category</option>
             <option value="Food Product">Food Product</option>
             <option value="Cosmetics">Cosmetics</option>
+            <option value="Biofertilizers">Biofertilizers</option>
           </select>
 
           {/* Specs */}

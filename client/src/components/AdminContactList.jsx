@@ -21,6 +21,7 @@ const AdminContactList = () => {
       });
 
       const contactDetails = res.data.contactDetails;
+      contactDetails.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       if (contactDetails.length === 0) {
         toast.info("No contact messages found.");

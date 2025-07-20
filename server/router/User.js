@@ -25,8 +25,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-const logoUrl = 'https://i.ibb.co/cXx9GgZz/Logo.jpg';
-
 router.post('/register', async (req, res) => {
   const { username, phone, email } = req.body;
   console.log({username,phone,email});
@@ -61,7 +59,7 @@ router.post('/register', async (req, res) => {
     <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
       <tr>
         <td style="width: 100px; padding-right: 10px;">
-          <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
+          <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
         </td>
         <td style="vertical-align: middle;">
           <div style="font-size: 22px; font-weight: bold; color: #4CAF50;">Lanka Greenovation</div>
@@ -147,7 +145,7 @@ router.post('/resend-otp', async (req, res) => {
                 <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
                   <tr>
                     <td style="width: 100px; padding-right: 10px;">
-                      <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
+                      <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: auto; display: block;">
                     </td>
                     <td style="vertical-align: middle;">
                       <div style="font-size: 22px; font-weight: bold; color: #4CAF50;">Lanka Greenovation</div>
@@ -245,7 +243,7 @@ router.post('/set-password', async (req, res) => {
        <table style="width: 100%; margin-bottom: 20px;">
           <tr>
             <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+              <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
             </td>
             <td style="text-align: left; vertical-align: middle;">
               <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
@@ -265,7 +263,7 @@ router.post('/set-password', async (req, res) => {
 
         <!-- Button -->
         <div style="text-align: center; margin-top: 20px;">
-          <a href="your-login-page-url" style="display: inline-block; padding: 12px 24px; font-size: 16px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px;">
+          <a href="https://lankagreenovation.com/user/login" style="display: inline-block; padding: 12px 24px; font-size: 16px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px;">
             ${isUpdate ? 'Log In Now' : 'Get Started'}
           </a>
         </div>
@@ -822,7 +820,7 @@ const invoiceId = `INV-${year}-${month}-${String(count + 1).padStart(3, '0')}`;
         <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 10px;">
           <table style="width: 100%; margin-bottom: 20px;">
             <tr>
-              <td style="width: 100px;"><img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
+              <td style="width: 100px;"><img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
               <td style="text-align: left; vertical-align: middle;">
                 <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Order Placed</span>
               </td>
@@ -882,7 +880,7 @@ const invoiceId = `INV-${year}-${month}-${String(count + 1).padStart(3, '0')}`;
         <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 10px;">
           <table style="width: 100%; margin-bottom: 20px;">
             <tr>
-              <td style="width: 100px;"><img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
+              <td style="width: 100px;"><img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" /></td>
               <td style="text-align: left; vertical-align: middle;">
                 <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
               </td>
@@ -1170,7 +1168,7 @@ router.post('/forgot-password', async (req, res) => {
         <table style="width: 100%; margin-bottom: 20px;">
           <tr>
             <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+              <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
             </td>
             <td style="text-align: left; vertical-align: middle;">
               <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Verify OTP</span>
@@ -1354,7 +1352,7 @@ router.post('/contact',async (req, res) => {
       <table style="width: 100%; margin-bottom: 20px;">
         <tr>
           <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+              <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
             </td>
           <td style="text-align: left; vertical-align: middle;">
             <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">New Contact Message</span>
@@ -1551,7 +1549,7 @@ router.post("/create-order", verifyUser, async (req, res) => {
         <table style="width: 100%; margin-bottom: 20px;">
           <tr>
             <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+              <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
             </td>
             <td style="text-align: left; vertical-align: middle;">
               <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">Payment Confirmation</span>
@@ -1622,7 +1620,7 @@ router.post("/create-order", verifyUser, async (req, res) => {
         <table style="width: 100%; margin-bottom: 20px;">
           <tr>
             <td style="width: 100px;">
-              <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+              <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
             </td>
             <td style="text-align: left; vertical-align: middle;">
               <span style="font-size: 22px; font-weight: bold; color: #4CAF50;">User Order Alert</span>
@@ -1736,7 +1734,7 @@ router.put("/cancel", verifyUser, async (req, res) => {
             <table style="width: 100%; margin-bottom: 20px;">
               <tr>
                 <td style="width: 100px;">
-                  <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+                  <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
                 </td>
                 <td style="text-align: left; vertical-align: middle;">
                   <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled</span>
@@ -1791,7 +1789,7 @@ router.put("/cancel", verifyUser, async (req, res) => {
             <table style="width: 100%; margin-bottom: 20px;">
               <tr>
                 <td style="width: 100px;">
-                  <img src="https://i.ibb.co/cXx9GgZz/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
+                  <img src="https://lankagreenovation.com/public/images/Logo.jpg" alt="Logo" style="width: 100px; height: 100px;" />
                 </td>
                 <td style="text-align: left; vertical-align: middle;">
                   <span style="font-size: 22px; font-weight: bold; color: #f44336;">Order Cancelled (User)</span>

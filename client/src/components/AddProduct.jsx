@@ -53,20 +53,44 @@ const AddProduct = () => {
     };
 
     const handleImageChange = (e) => {
-        const selectedFiles = Array.from(e.target.files);
-        if (selectedFiles.length + images.length > 5) {
-            setMessage("You can only upload up to 5 images.");
-            setPopupType("error");
-            setShowPopup(true);
-            setTimeout(() => setShowPopup(false), 3000);
-            return;
-        }
-        setImages([...images, ...selectedFiles]);
-    };
+    const selectedFiles = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024; // 2MB
+
+    const oversized = selectedFiles.find(file => file.size > maxSize);
+    if (oversized) {
+        setMessage("One or more files are too large (max 2MB per image).");
+        setPopupType("error");
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 3000);
+        return;
+    }
+
+    if (selectedFiles.length + images.length > 5) {
+        setMessage("You can only upload up to 5 images.");
+        setPopupType("error");
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 3000);
+        return;
+    }
+
+    setImages([...images, ...selectedFiles]);
+};
 
     const handleThumbnailChange = (e) => {
-        setThumbnail(e.target.files[0]);
-    };
+    const file = e.target.files[0];
+    const maxSize = 5 * 1024 * 1024; 
+
+    if (file && file.size > maxSize) {
+        setMessage("Thumbnail file is too large (max 2MB).");
+        setPopupType("error");
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 3000);
+        return;
+    }
+
+    setThumbnail(file);
+};
+
 
     const removeImage = (index) => {
         const newImages = [...images];
@@ -145,7 +169,7 @@ const AddProduct = () => {
         { label: "Stock", name: "availablestock", type: "number" },
         { label: "Short Description", name: "shortDescription", textarea: true },
         { label: "Detailed Description", name: "detailedDescription", textarea: true },
-        { label: "Category", name: "category", select: true, options: ["Food Product", "Cosmetics"] },
+        { label: "Category", name: "category", select: true, options: ["Food Product", "Cosmetics","Biofertilizers"] },
         { label: "Item Form", name: "itemForm" },
         { label: "Product Benefits", name: "productBenefits" },
         { label: "Scent", name: "scent" },

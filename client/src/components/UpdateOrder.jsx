@@ -155,7 +155,7 @@ const UpdateOrder = () => {
                   />
                   <div className="product-info">
                     <p><strong>Product:</strong> {product.productId?.name || "Unknown"}</p>
-                    <p><strong>Description:</strong> {product.productId?.description || "No description"}</p>
+                    {/* <p><strong>Description:</strong> {product.productId?.shortDescription || "No description"}</p> */}
                     <p><strong>Price:</strong> ₹{product.productId?.price}</p>
                     <p><strong>Quantity:</strong> {product.quantity}</p>
                   </div>
