@@ -51,8 +51,8 @@ router.post("/login", async (req, res) => {
       const token = jwt.sign({ id: admin._id, username: admin.username }, SECRET_KEY, { expiresIn: "1h" });
       res.cookie("adminToken", token, {
         httpOnly: true, 
-        secure: false, 
-        sameSite: "Strict",
+        secure: true, 
+        sameSite: "None",
      });
       res.json({ message: "Admin logged in successfully",token});
     } catch (error) {
@@ -65,8 +65,8 @@ router.post("/login", async (req, res) => {
     try {
         res.clearCookie("adminToken", {
         httpOnly: true,
-        secure: false, 
-        sameSite: "Strict",
+        secure: true, 
+        sameSite: "None",
       });
   
       res.json({ message: "Logout successful" });
