@@ -323,8 +323,8 @@ router.post("/login", async (req, res) => {
     
     res.cookie("userToken", token, {
       httpOnly: true,
-      secure: false, 
-      sameSite: "Strict",
+      secure: true, 
+      sameSite: "None",
     });
 
     console.log("User Token Set:", token);
