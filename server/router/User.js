@@ -338,8 +338,8 @@ router.post("/logout", (req, res) => {
   try {
     res.clearCookie("userToken", {
       httpOnly: true,
-      secure: false, 
-      sameSite: "Strict",
+      secure: true, 
+      sameSite: "None",
     });
 
     res.json({ message: "Logout successful" });
