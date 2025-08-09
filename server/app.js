@@ -52,7 +52,6 @@ app.use((req, res, next) => {
 // Other middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use('/upload', express.static(path.join(__dirname, 'Upload')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 

@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
 const verifyAdmin = require('../middleware/verifyAdmin');
 const Order = require('../model/Order');
@@ -13,17 +14,10 @@ const Product = require('../model/Product');
 const mongoose = require('mongoose');
 const Contact = require('../model/Contact');
 const nodemailer = require('nodemailer');
-
+const cloudinary = require('../cloudinaryConfig');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-      cb(null, "Upload/Images"); 
-  },
-  filename: (req, file, cb) => {
-      cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
-  }
-});
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -32,12 +26,12 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, 
-}).fields([
-  { name: 'images', maxCount: 5 },   
-  { name: 'thumbnail', maxCount: 1 } 
+
+const { storage } = require('../cloudinaryConfig');
+
+const upload = multer({ storage }).fields([
+  { name: 'images', maxCount: 5 },
+  { name: 'thumbnail', maxCount: 1 }
 ]);
 
 
@@ -89,122 +83,8 @@ router.get("/dashboard", verifyAdmin, async(req, res) => {
 
 
 
-router.post('/add-product', upload, verifyAdmin, async (req, res) => {
-    try {
-        // Image paths
-        const imagePaths = req.files['images'] ? req.files['images'].map(file => file.path) : [];
-        const thumbnailPath = req.files['thumbnail'] ? req.files['thumbnail'][0].path : null;
-
-        // Destructure basic fields including category
-        const {
-            name,
-            brand,
-            price,
-            availablestock,
-            shortDescription,
-            detailedDescription,
-            stockStatus,
-            category, // <-- added here
-
-            // specs fields
-            itemForm,
-            productBenefits,
-            scent,
-            skinType,
-            netQuantity,
-            numberOfItems,
-            recommendedUses,
-            upc,
-
-            // technical details
-            manufacturer,
-            countryOfOrigin,
-            itemPartNumber,
-            productDimensions,
-            asin,
-
-            // additional info
-            itemWeight,
-            itemDimensions,
-            bestSellersRank,
-            rankInFaceMasks,
-        } = req.body;
-
-        const newProduct = new Product({
-            name,
-            brand,
-            price,
-            availablestock,
-            shortDescription,
-            detailedDescription,
-            stockStatus,
-            category, // <-- added here
-            images: imagePaths,
-            thumbnail: thumbnailPath,
-
-            specs: {
-                itemForm,
-                productBenefits,
-                scent,
-                skinType,
-                netQuantity,
-                numberOfItems,
-                recommendedUses,
-                upc
-            },
-            technicalDetails: {
-                manufacturer,
-                countryOfOrigin,
-                itemPartNumber,
-                productDimensions,
-                asin
-            },
-            additionalInfo: {
-                itemWeight,
-                itemDimensions,
-                netQuantity, // repeated field, optional
-                bestSellersRank,
-                rankInFaceMasks
-            },
-        });
-
-        await newProduct.save();
-
-        res.status(201).json({ message: 'Product added successfully!', product: newProduct });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-
-
-router.get('/get-product', verifyAdmin, async (req, res) => {
+router.post("/add-product", upload, verifyAdmin, async (req, res) => {
   try {
-      const products = await Product.find();
-
-      if (!products || products.length === 0) {
-          return res.status(404).json({ message: "No products found" });
-      }
-
-      res.status(200).json({
-          message: "Products fetched successfully",
-          products: products
-      });
-
-  } catch (err) {
-      console.error("Error fetching products:", err);
-      res.status(500).json({ message: "Internal Server Error", error: err.message });
-  }
-});
-
-router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
-  try {
-    // Image update handling
-    const imagePaths = req.files?.images ? req.files.images.map(file => file.path) : undefined;
-    const thumbnailPath = req.files?.thumbnail ? req.files.thumbnail[0].path : undefined;
-
     const {
       name,
       brand,
@@ -213,9 +93,7 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       shortDescription,
       detailedDescription,
       stockStatus,
-      category, // <-- added
-
-      // specs fields
+      category,
       itemForm,
       productBenefits,
       scent,
@@ -224,23 +102,62 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       numberOfItems,
       recommendedUses,
       upc,
-
-      // technical details
       manufacturer,
       countryOfOrigin,
       itemPartNumber,
       productDimensions,
       asin,
-
-      // additional info
       itemWeight,
       itemDimensions,
       bestSellersRank,
-      rankInFaceMasks,
+      rankInFaceMasks
     } = req.body;
 
-    // Build the update object
-    const updateFields = {
+    // Upload multiple images to Cloudinary
+    const imageUploads = [];
+    if (req.files?.images?.length) {
+      for (const file of req.files.images) {
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "products" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          stream.end(file.buffer);
+        });
+
+        imageUploads.push({
+          url: uploadResult.secure_url,
+          public_id: uploadResult.public_id
+        });
+      }
+    }
+
+    // Upload thumbnail to Cloudinary
+    let thumbnailUpload = null;
+    if (req.files?.thumbnail?.[0]) {
+      const file = req.files.thumbnail[0];
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "products/thumbnails" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      thumbnailUpload = {
+        url: uploadResult.secure_url,
+        public_id: uploadResult.public_id
+      };
+    }
+
+    // Create product document
+    const newProduct = new Product({
       name,
       brand,
       price,
@@ -248,10 +165,9 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       shortDescription,
       detailedDescription,
       stockStatus,
-      category, // <-- added
-      ...(imagePaths && { images: imagePaths }),
-      ...(thumbnailPath && { thumbnail: thumbnailPath }),
-
+      category,
+      images: imageUploads,
+      thumbnail: thumbnailUpload,
       specs: {
         itemForm,
         productBenefits,
@@ -260,22 +176,136 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
         netQuantity,
         numberOfItems,
         recommendedUses,
-        upc,
+        upc
       },
       technicalDetails: {
         manufacturer,
         countryOfOrigin,
         itemPartNumber,
         productDimensions,
-        asin,
+        asin
       },
       additionalInfo: {
         itemWeight,
         itemDimensions,
-        netQuantity, // optional repetition
+        netQuantity,
         bestSellersRank,
-        rankInFaceMasks,
-      },
+        rankInFaceMasks
+      }
+    });
+
+    await newProduct.save();
+
+    res.status(201).json({
+      message: "Product added successfully!",
+      product: newProduct
+    });
+
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+router.get('/get-product', verifyAdmin, async (req, res) => {
+  try {
+    const products = await Product.find();
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    // Convert to just URLs for frontend
+    const formattedProducts = products.map(product => ({
+      ...product.toObject(),
+      images: product.images?.map(img => img.url),
+      thumbnail: product.thumbnail?.url
+    }));
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      products: formattedProducts
+    });
+
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+});
+
+
+
+router.put("/edit-product/:id", upload, verifyAdmin, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Handle image replacement
+    let updatedImages = product.images;
+    if (req.files?.images && req.files.images.length > 0) {
+      // Delete old images from Cloudinary
+      for (const img of product.images) {
+        await cloudinary.uploader.destroy(img.public_id);
+      }
+
+      // Upload new images
+      updatedImages = [];
+      for (const file of req.files.images) {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "products" },
+            (error, uploadResult) => {
+              if (error) reject(error);
+              else resolve(uploadResult);
+            }
+          );
+          uploadStream.end(file.buffer);
+        });
+
+        updatedImages.push({
+          url: result.secure_url,
+          public_id: result.public_id
+        });
+      }
+    }
+
+    // Handle thumbnail replacement
+    let updatedThumbnail = product.thumbnail;
+    if (req.files?.thumbnail && req.files.thumbnail[0]) {
+      // Delete old thumbnail from Cloudinary
+      if (product.thumbnail?.public_id) {
+        await cloudinary.uploader.destroy(product.thumbnail.public_id);
+      }
+
+      const file = req.files.thumbnail[0];
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "products/thumbnails" },
+          (error, uploadResult) => {
+            if (error) reject(error);
+            else resolve(uploadResult);
+          }
+        );
+        uploadStream.end(file.buffer);
+      });
+
+      updatedThumbnail = {
+        url: result.secure_url,
+        public_id: result.public_id
+      };
+    }
+
+    // Build update object
+    const updateFields = {
+      ...req.body,
+      images: updatedImages,
+      thumbnail: updatedThumbnail
     };
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -283,10 +313,6 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
       updateFields,
       { new: true, runValidators: true }
     );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
 
     res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
 
@@ -298,46 +324,75 @@ router.put('/edit-product/:id', upload, verifyAdmin, async (req, res) => {
 
 
 
-router.get("/get-product/:id",verifyAdmin,async(req,res)=>{
+
+router.get("/get-product/:id", verifyAdmin, async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
 
     const product = await Product.findById(id);
 
     if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ message: "Product Fetched successfully", product:product });
+    // Transform for frontend compatibility
+    const transformedProduct = {
+      ...product.toObject(),
+      images: product.images.map(img => img.url),
+      thumbnail: product.thumbnail.url
+    };
+
+    res.status(200).json({
+      message: "Product fetched successfully",
+      product: transformedProduct
+    });
+
   } catch (error) {
-      console.error("Error fetching product:", error);
-      res.status(500).json({ message: "Error fetching product", error: error.message });
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Error fetching product", error: error.message });
   }
 });
 
 
-router.delete("/delete-product/:id", verifyAdmin, async (req, res) => {
-  const { id } = req.params;
 
+router.delete("/delete-product/:id", verifyAdmin, async (req, res) => {
   try {
-    
+    const { id } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Product ID" });
     }
 
-    
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
+    const product = await Product.findById(id);
+    if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ message: "Product deleted successfully", deletedProduct });
+    // Delete all product images from Cloudinary
+    if (product.images && product.images.length > 0) {
+      for (const img of product.images) {
+        if (img.public_id) {
+          await cloudinary.uploader.destroy(img.public_id);
+        }
+      }
+    }
+
+    // Delete product thumbnail from Cloudinary
+    if (product.thumbnail?.public_id) {
+      await cloudinary.uploader.destroy(product.thumbnail.public_id);
+    }
+
+    // Delete product from DB
+    await Product.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Product deleted successfully" });
+
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 
 router.get("/orders", verifyAdmin, async (req, res) => {
