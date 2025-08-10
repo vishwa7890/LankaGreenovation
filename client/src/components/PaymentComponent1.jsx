@@ -112,7 +112,7 @@ const [placingOrder, setPlacingOrder] = useState(false);
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={`http://localhost:5000/${p.productId.thumbnail.replace(/\\/g, '/')}`}
+                    src={p.productId.thumbnail?.url}
                     alt=""
                   />
                 </td>

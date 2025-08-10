@@ -203,7 +203,7 @@ if (loading) {
                           return p ? (
                             <div key={product._id || index} className="product-card">
                               <img
-                                src={`http://localhost:5000/${p.thumbnail}`}
+                                src={p.thumbnail.url}
                                 alt={p.name}
                                 className="product-image"
                               />
@@ -235,11 +235,7 @@ if (loading) {
     View Invoice
   </button>
 )}
-
-
-
                     </div>
-
                     {/* 💰 Order Amount Details */}
                     <div className="amount-breakdown">
   <h4>🧾 Amount Breakdown</h4>

@@ -9,7 +9,18 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     animation: fadeIn 1s ease-in-out;
   }
-  
+  .input-error {
+  border-color: red !important;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}
+
+
   /* Card */
   .add-address-card {
     background: #ffffffdd;

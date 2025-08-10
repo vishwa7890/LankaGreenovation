@@ -58,11 +58,13 @@ const UserProducts = () => {
 
   const renderProductCard = (product) => (
     <div key={product._id} className="user-product-card">
+      <div class="thumbnail-wrapper">
       <img
-        src={`http://localhost:5000/${product.thumbnail}`}
+        src={product.thumbnail?.url || "https://via.placeholder.com/150"}
         alt={product.name}
         className="user-product-thumbnail"
       />
+      </div>
       <h3 className="user-product-name">{product.name}</h3>
       <p><strong>Brand:</strong> {product.brand}</p>
       <p><strong>Price:</strong> ₹{product.price}</p>

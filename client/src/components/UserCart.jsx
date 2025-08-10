@@ -139,7 +139,7 @@ const UserCart = () => {
                 products.map((product) => (
                   <div key={product._id} className="cart-card">
                     <img
-                      src={`http://localhost:5000/${product.thumbnail}`}
+                      src={product.thumbnail?.url || "https://via.placeholder.com/150"}
                       alt={product.name}
                       className="thumbnail"
                     />

@@ -5,7 +5,6 @@ import "../css/ProductList.css";
 import AdminNavbar from "../components/AdminNavbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LoadingSpinner from "../components/LoadingSpinner";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -107,7 +106,7 @@ const ProductList = () => {
               {products.map((product) => (
                 <div key={product._id} className="product-list-card">
                   <img
-                    src={`http://localhost:5000/${product.thumbnail}`}
+                    src={product.thumbnail?.url || "https://via.placeholder.com/150"}
                     alt={product.name}
                     className="product-list-thumbnail"
                   />

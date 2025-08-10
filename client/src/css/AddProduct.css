@@ -10,6 +10,16 @@
   }
 }
 
+  .input-error {
+  border-color: red !important;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}
 /* Main Container */
 .add-product-container {
   max-width: 950px;

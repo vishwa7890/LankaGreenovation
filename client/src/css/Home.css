@@ -1,4 +1,9 @@
 /* --- Hero Section --- */
+/* Prevent horizontal overflow on body */
+body {
+  overflow-x: hidden;
+}
+
 .hero a.btn {
   transition: all 0.3s ease-in-out;
   background: rgba(255, 255, 255, 0.2); /* Slight transparency */

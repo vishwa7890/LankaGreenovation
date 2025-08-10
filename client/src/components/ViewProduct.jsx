@@ -22,7 +22,7 @@ const ViewProduct = () => {
       try {
         const res = await axios.get(`http://localhost:5000/user/get-product/${id}`);
         setProduct(res.data.product);
-        setSelectedImg(res.data.product.images[0]);
+        setSelectedImg(res.data.product.images[0].url); // this should be full URL
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching product");
@@ -33,8 +33,6 @@ const ViewProduct = () => {
       try {
         const res = await axios.get(`http://localhost:5000/user/products/${id}/comments`);
         setComments(res.data);
-        console.log(res.data);
-        
       } catch (err) {
         console.error("Error fetching comments", err);
       }
@@ -43,8 +41,7 @@ const ViewProduct = () => {
     fetchProduct();
     fetchComments();
   }, [id]);
-  console.log(comments);
-  
+
   const handleAddCart = async (productId) => {
     try {
       const response = await axios.post(
@@ -53,7 +50,6 @@ const ViewProduct = () => {
         { withCredentials: true }
       );
       toast.success("Product added successfully!");
-      console.log(response.data.message);
     } catch (err) {
       toast.error(`Error adding product: Please Login First!!!`);
       console.error("Error adding to cart:", err);
@@ -69,7 +65,7 @@ const ViewProduct = () => {
         { withCredentials: true }
       );
 
-      setComments([res.data.comment, ...comments]); // Add new comment to top
+      setComments([res.data.comment, ...comments]);
       setNewComment("");
       setNewRating(5);
       setCommentError("");
@@ -105,21 +101,22 @@ const ViewProduct = () => {
         {/* LEFT IMAGE + THUMBNAILS */}
         <div className="product-left">
           <img
-            src={`http://localhost:5000/${selectedImg}`}
+            src={selectedImg} // use full URL directly
             alt="Selected"
             className="main-img"
           />
           <div className="thumbnail-row">
-            {product.images.map((img, idx) => (
-              <img
-                key={idx}
-                src={`http://localhost:5000/${img}`}
-                onClick={() => setSelectedImg(img)}
-                className={`thumb ${img === selectedImg ? "active" : ""}`}
-                alt="thumb"
-              />
-            ))}
-          </div>
+  {product.images.map((imgObj, idx) => (
+  <img
+    key={idx}
+    src={imgObj.url}
+    onClick={() => setSelectedImg(imgObj.url)}
+    className={`thumb ${imgObj.url === selectedImg ? "active" : ""}`}
+    alt={`thumb-${idx}`}
+  />
+  ))}
+</div>
+
         </div>
 
         {/* RIGHT PRODUCT INFO */}
@@ -159,7 +156,7 @@ const ViewProduct = () => {
               </ul>
 
               <div className="cart-actions">
-                {product.availablestock === 0 || product.stockStatus === "Out of Stock"? (
+                {product.availablestock === 0 || product.stockStatus === "Out of Stock" ? (
                   <button className="outofstock-btn" disabled>
                     Out of Stock
                   </button>
@@ -170,7 +167,9 @@ const ViewProduct = () => {
                       onClick={() => handleAddCart(product._id)}
                     >
                       Add to Cart
-                    </button><br></br><br></br>
+                    </button>
+                    <br />
+                    <br />
                     <button className="cart-btn" onClick={handleGotoCart}>
                       Go to Cart
                     </button>
@@ -181,7 +180,7 @@ const ViewProduct = () => {
 
             <div className="right-thumbnail-preview">
               <img
-                src={`http://localhost:5000/${product.thumbnail}`}
+                src={product.thumbnail?.url || "https://via.placeholder.com/150"}
                 alt={product.name}
                 className="right-thumbnail-image"
               />
@@ -261,77 +260,73 @@ const ViewProduct = () => {
                 </tr>
                 <tr>
                   <td>Best Sellers Rank</td>
-                  <td>{product.additionalInfo.bestSellersRank}</td>
+                  <td>{product.additionalInfo?.bestSellersRank}</td>
                 </tr>
                 <tr>
                   <td>Rank In FaceMasks</td>
-                  <td>{product.additionalInfo.rankInFaceMasks}</td>
+                  <td>{product.additionalInfo?.rankInFaceMasks}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         )}
       </div>
-      <div className="comment-section">
-  <h2 className="comment-title">Customer Reviews</h2>
 
-  <form onSubmit={handleAddComment} className="comment-form">
-    <textarea
-      className="comment-textarea"
-      placeholder="Write your review here..."
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      required
-    />
-    <div className="rating-stars-wrapper">
-  <label className="rating-label">Your Rating:</label>
-      <div className="star-rating">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <span
-            key={star}
-            className={`star ${newRating >= star ? "filled" : ""}`}
-            onClick={() => setNewRating(star)}
-          >
-            ★
-          </span>
-        ))}
+      {/* COMMENTS SECTION */}
+      <div className="comment-section">
+        <h2 className="comment-title">Customer Reviews</h2>
+
+        <form onSubmit={handleAddComment} className="comment-form">
+          <textarea
+            className="comment-textarea"
+            placeholder="Write your review here..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            required
+          />
+          <div className="rating-stars-wrapper">
+            <label className="rating-label">Your Rating:</label>
+            <div className="star-rating">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className={`star ${newRating >= star ? "filled" : ""}`}
+                  onClick={() => setNewRating(star)}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <button type="submit" className="submit-comment-btn">
+            Submit Review
+          </button>
+          {commentError && <p className="comment-error">{commentError}</p>}
+        </form>
+
+        <div className="comment-list">
+          {comments.length === 0 ? (
+            <p className="no-comments">No reviews yet. Be the first to review!</p>
+          ) : (
+            comments.map((comment) => (
+              <div key={comment._id} className="comment-card">
+                <div className="comment-header">
+                  <strong>{comment.user?.username || "Anonymous"}</strong>
+                  <span className="comment-date">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <div className="comment-body">
+                  <div className="comment-text">{comment.text} </div>
+                  <div className="comment-rating">{"⭐".repeat(comment.rating)} </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
-
-    <button type="submit" className="submit-comment-btn">
-      Submit Review
-    </button>
-    {commentError && <p className="comment-error">{commentError}</p>}
-  </form>
-
-  <div className="comment-list">
-    {comments.length === 0 ? (
-      <p className="no-comments">No reviews yet. Be the first to review!</p>
-    ) : (
-      comments.map((comment) => (
-        <div key={comment._id} className="comment-card">
-          <div className="comment-header">
-            <strong>{comment.user?.username || "Anonymous"}</strong>
-            <span className="comment-date">
-              {new Date(comment.createdAt).toLocaleString()}
-            </span>
-          </div>
-          <div className="comment-body">
-            <div className="comment-text">
-              {comment.text}{" "}
-            </div>
-            <div className="comment-rating">
-              {"⭐".repeat(comment.rating)}{" "}
-            </div>
-           
-            
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-</div>
-</div>
   );
 };
 

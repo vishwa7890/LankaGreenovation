@@ -5,11 +5,13 @@ import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/EditProduct.css";
+import AdminNavbar from "../components/AdminNavbar";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [thumbnail, setThumbnail] = useState(null);
@@ -28,6 +30,7 @@ const EditProduct = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`http://localhost:5000/admin/get-product/${id}`, { withCredentials: true });
         if (res.data?.product) {
@@ -51,6 +54,8 @@ const EditProduct = () => {
         } else {
           toast.error("Error fetching product.");
         }
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -85,7 +90,9 @@ const EditProduct = () => {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData();
     Object.entries(product).forEach(([key, value]) => formData.append(key, value));
     if (thumbnail) formData.append("thumbnail", thumbnail);
@@ -101,10 +108,19 @@ const EditProduct = () => {
       setTimeout(() => navigate("/productlist"), 2000);
     } catch (err) {
       toast.error(err.response?.data?.message || "Error updating product.");
+    }finally {
+      setLoading(false);
     }
   };
 
   return (
+     <div>
+      <AdminNavbar />
+      {loading && (
+        <div className="loading-overlay">
+          <LoadingSpinner />
+        </div>
+      )}
     <div style={{ minHeight: "100vh", background: "#f9f9f9", padding: "30px" }}>
       <div className="edit-product-container">
         <div className="edit-header">
@@ -188,6 +204,7 @@ const EditProduct = () => {
         </form>
       </div>
     </div>
+  </div>
   );
 };
 

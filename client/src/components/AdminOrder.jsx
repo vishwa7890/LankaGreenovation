@@ -32,9 +32,13 @@ const AdminOrder = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/admin/orders", {
-          withCredentials: true,
-        });
+        const BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://lankagreenovation.onrender.com";
+
+const response = await axios.get(`${BASE_URL}/admin/orders`, {
+  withCredentials: true
+});
         const sortedOrders = response.data.orders.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );

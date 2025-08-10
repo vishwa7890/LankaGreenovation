@@ -1,6 +1,9 @@
-// cloudinaryConfig.js
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,13 +11,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Storage engine (optional if you upload via upload_stream)
 const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'products', // Cloudinary folder name
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    public_id: (req, file) => file.fieldname + '_' + Date.now()
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    let folder = 'products';
+    if (file.fieldname === 'thumbnail') folder = 'products/thumbnails';
+    return {
+      folder,
+      resource_type: 'auto'
+    };
   }
 });
 
-module.exports = { cloudinary, storage };
+module.exports = {
+  cloudinary,
+  storage
+};

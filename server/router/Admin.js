@@ -14,10 +14,10 @@ const Product = require('../model/Product');
 const mongoose = require('mongoose');
 const Contact = require('../model/Contact');
 const nodemailer = require('nodemailer');
-const cloudinary = require('../cloudinaryConfig');
+const { cloudinary } = require('../cloudinaryConfig');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const SECRET_KEY = process.env.SECRET_KEY;
-
+const upload = require('../upload');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -29,10 +29,6 @@ const transporter = nodemailer.createTransport({
 
 const { storage } = require('../cloudinaryConfig');
 
-const upload = multer({ storage }).fields([
-  { name: 'images', maxCount: 5 },
-  { name: 'thumbnail', maxCount: 1 }
-]);
 
 
 router.post("/login", async (req, res) => {
@@ -82,9 +78,13 @@ router.get("/dashboard", verifyAdmin, async(req, res) => {
 });
 
 
-
 router.post("/add-product", upload, verifyAdmin, async (req, res) => {
   try {
+    console.log("📝 Incoming request to /add-product");
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("Files:", req.files);
+
     const {
       name,
       brand,
@@ -113,46 +113,18 @@ router.post("/add-product", upload, verifyAdmin, async (req, res) => {
       rankInFaceMasks
     } = req.body;
 
-    // Upload multiple images to Cloudinary
-    const imageUploads = [];
-    if (req.files?.images?.length) {
-      for (const file of req.files.images) {
-        const uploadResult = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "products" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-          stream.end(file.buffer);
-        });
+    // Directly use Multer-Cloudinary upload results
+    const imageUploads = req.files?.images?.map(file => ({
+      url: file.path,         // Cloudinary URL
+      public_id: file.filename // Cloudinary public_id
+    })) || [];
 
-        imageUploads.push({
-          url: uploadResult.secure_url,
-          public_id: uploadResult.public_id
-        });
-      }
-    }
-
-    // Upload thumbnail to Cloudinary
     let thumbnailUpload = null;
     if (req.files?.thumbnail?.[0]) {
       const file = req.files.thumbnail[0];
-      const uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "products/thumbnails" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(file.buffer);
-      });
-
       thumbnailUpload = {
-        url: uploadResult.secure_url,
-        public_id: uploadResult.public_id
+        url: file.path,
+        public_id: file.filename
       };
     }
 
@@ -202,10 +174,12 @@ router.post("/add-product", upload, verifyAdmin, async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error adding product:", error);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error adding product:", error);
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
+
+
 
 
 
@@ -219,11 +193,10 @@ router.get('/get-product', verifyAdmin, async (req, res) => {
       return res.status(404).json({ message: "No products found" });
     }
 
-    // Convert to just URLs for frontend
     const formattedProducts = products.map(product => ({
       ...product.toObject(),
       images: product.images?.map(img => img.url),
-      thumbnail: product.thumbnail?.url
+      thumbnail: product.thumbnail || null
     }));
 
     res.status(200).json({
@@ -239,14 +212,14 @@ router.get('/get-product', verifyAdmin, async (req, res) => {
 
 
 
-router.put("/edit-product/:id", upload, verifyAdmin, async (req, res) => {
+router.put("/edit-product/:id", upload, verifyAdmin, async (req, res) => { 
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Handle image replacement
+    // Handle image replacement if new images uploaded
     let updatedImages = product.images;
     if (req.files?.images && req.files.images.length > 0) {
       // Delete old images from Cloudinary
@@ -254,60 +227,93 @@ router.put("/edit-product/:id", upload, verifyAdmin, async (req, res) => {
         await cloudinary.uploader.destroy(img.public_id);
       }
 
-      // Upload new images
-      updatedImages = [];
-      for (const file of req.files.images) {
-        const result = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: "products" },
-            (error, uploadResult) => {
-              if (error) reject(error);
-              else resolve(uploadResult);
-            }
-          );
-          uploadStream.end(file.buffer);
-        });
-
-        updatedImages.push({
-          url: result.secure_url,
-          public_id: result.public_id
-        });
-      }
+      // Use new uploaded images from multer/cloudinary middleware
+      updatedImages = req.files.images.map(file => ({
+        url: file.path,         // From your upload middleware, e.g. multer-cloudinary
+        public_id: file.filename
+      }));
     }
 
-    // Handle thumbnail replacement
+    // Handle thumbnail replacement if new thumbnail uploaded
     let updatedThumbnail = product.thumbnail;
-    if (req.files?.thumbnail && req.files.thumbnail[0]) {
-      // Delete old thumbnail from Cloudinary
+    if (req.files?.thumbnail && req.files.thumbnail.length > 0) {
       if (product.thumbnail?.public_id) {
         await cloudinary.uploader.destroy(product.thumbnail.public_id);
       }
-
       const file = req.files.thumbnail[0];
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "products/thumbnails" },
-          (error, uploadResult) => {
-            if (error) reject(error);
-            else resolve(uploadResult);
-          }
-        );
-        uploadStream.end(file.buffer);
-      });
-
       updatedThumbnail = {
-        url: result.secure_url,
-        public_id: result.public_id
+        url: file.path,
+        public_id: file.filename
       };
     }
 
-    // Build update object
+    // Prepare the fields to update
+    const {
+      name,
+      brand,
+      price,
+      availablestock,
+      shortDescription,
+      detailedDescription,
+      stockStatus,
+      category,
+      itemForm,
+      productBenefits,
+      scent,
+      skinType,
+      netQuantity,
+      numberOfItems,
+      recommendedUses,
+      upc,
+      manufacturer,
+      countryOfOrigin,
+      itemPartNumber,
+      productDimensions,
+      asin,
+      itemWeight,
+      itemDimensions,
+      bestSellersRank,
+      rankInFaceMasks
+    } = req.body;
+
     const updateFields = {
-      ...req.body,
+      name,
+      brand,
+      price,
+      availablestock,
+      shortDescription,
+      detailedDescription,
+      stockStatus,
+      category,
       images: updatedImages,
-      thumbnail: updatedThumbnail
+      thumbnail: updatedThumbnail,
+      specs: {
+        itemForm,
+        productBenefits,
+        scent,
+        skinType,
+        netQuantity,
+        numberOfItems,
+        recommendedUses,
+        upc
+      },
+      technicalDetails: {
+        manufacturer,
+        countryOfOrigin,
+        itemPartNumber,
+        productDimensions,
+        asin
+      },
+      additionalInfo: {
+        itemWeight,
+        itemDimensions,
+        netQuantity,
+        bestSellersRank,
+        rankInFaceMasks
+      }
     };
 
+    // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updateFields,
@@ -317,7 +323,7 @@ router.put("/edit-product/:id", upload, verifyAdmin, async (req, res) => {
     res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
 
   } catch (error) {
-    console.error("Error updating product:", error);
+    console.error("❌ Error updating product:", error);
     res.status(500).json({ message: "Error updating product", error: error.message });
   }
 });
@@ -339,7 +345,7 @@ router.get("/get-product/:id", verifyAdmin, async (req, res) => {
     const transformedProduct = {
       ...product.toObject(),
       images: product.images.map(img => img.url),
-      thumbnail: product.thumbnail.url
+      thumbnail: product.thumbnail ? product.thumbnail.url : null
     };
 
     res.status(200).json({
@@ -368,13 +374,13 @@ router.delete("/delete-product/:id", verifyAdmin, async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Delete all product images from Cloudinary
+    // Delete all product images from Cloudinary in parallel
     if (product.images && product.images.length > 0) {
-      for (const img of product.images) {
-        if (img.public_id) {
-          await cloudinary.uploader.destroy(img.public_id);
-        }
-      }
+      await Promise.all(
+        product.images
+          .filter(img => img.public_id)
+          .map(img => cloudinary.uploader.destroy(img.public_id))
+      );
     }
 
     // Delete product thumbnail from Cloudinary
@@ -392,6 +398,7 @@ router.delete("/delete-product/:id", verifyAdmin, async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 
 

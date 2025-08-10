@@ -115,12 +115,9 @@ const UserRegister = () => {
                 required
               />
             </div>
-
             <button type="submit" className="signupBtn" disabled={loading}>
   {loading ? "Registering..." : "Register"}
 </button>
-
-
             <p className="loginLink">
               Already have an account? <a href="/user/login">Login</a>
             </p>

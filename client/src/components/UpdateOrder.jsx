@@ -149,7 +149,7 @@ const UpdateOrder = () => {
               order.products.map((product, index) => (
                 <div key={product._id || index} className="product-card">
                   <img
-                    src={`http://localhost:5000/${product.productId?.thumbnail}`}
+                    src={product.productId?.thumbnail.url}
                     alt={product.productId?.name}
                     className="product-image"
                   />
