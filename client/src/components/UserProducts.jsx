@@ -13,6 +13,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const UserProducts = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +29,7 @@ const UserProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/user/get-product");
+        const res = await axios.get(`${API_URL}/user/get-product`);
         setProducts(res.data.products);
         setLoading(false);
       } catch (err) {
@@ -42,7 +43,7 @@ const UserProducts = () => {
   const handleAddCart = async (productId) => {
     try {
       await axios.post(
-        "http://localhost:5000/user/add",
+        `${API_URL}/user/add`,
         { productId, quantity: 1 },
         { withCredentials: true }
       );

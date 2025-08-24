@@ -5,17 +5,18 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const API_URL = import.meta.env.VITE_API_URL;
 
     
     useEffect(() => {
-        axios.get('http://localhost:5000/user/dashboard', { withCredentials: true })
+        axios.get(`${API_URL}/user/dashboard`, { withCredentials: true })
             .then(res => setUser(res.data.user))
             .catch(() => setUser(null));
     }, []);
 
     
     const logout = async () => {
-        await axios.post('http://localhost:5000/user/logout', {}, { withCredentials: true });
+        await axios.post(`${API_URL}/user/logout`, {}, { withCredentials: true });
         setUser(null);
     };
 

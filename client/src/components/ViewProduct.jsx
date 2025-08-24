@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const ViewProduct = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ const ViewProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/user/get-product/${id}`);
+        const res = await axios.get(`${API_URL}/user/get-product/${id}`);
         setProduct(res.data.product);
         setSelectedImg(res.data.product.images[0].url); // this should be full URL
         setLoading(false);
@@ -31,7 +32,7 @@ const ViewProduct = () => {
     };
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/user/products/${id}/comments`);
+        const res = await axios.get(`${API_URL}/user/products/${id}/comments`);
         setComments(res.data);
       } catch (err) {
         console.error("Error fetching comments", err);
@@ -45,7 +46,7 @@ const ViewProduct = () => {
   const handleAddCart = async (productId) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/add",
+        `${API_URL}/user/add`,
         { productId, quantity: 1 },
         { withCredentials: true }
       );
@@ -60,7 +61,7 @@ const ViewProduct = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `http://localhost:5000/user/products/${id}/comments`,
+        `${API_URL}/user/products/${id}/comments`,
         { text: newComment, rating: newRating },
         { withCredentials: true }
       );

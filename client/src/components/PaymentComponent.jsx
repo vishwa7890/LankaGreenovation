@@ -10,6 +10,7 @@ const PaymentComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY;
+  const API_URL = import.meta.env.VITE_API_URL;
   const { addressId, products } = location.state || {};
   const [summary, setSummary] = useState(null);
   const paymentMethod = "Online";
@@ -18,7 +19,7 @@ const PaymentComponent = () => {
     const fetchSummary = async () => {
       try {
         const res = await axios.post(
-          "http://localhost:5000/user/order-summary",
+          `${API_URL}/user/order-summary`,
           {
             products,
             paymentMethod
@@ -41,7 +42,7 @@ const PaymentComponent = () => {
     try {
       const finalAmount = summary.totalPrice;
 
-      const response = await axios.post('http://localhost:5000/user/test1', { amount: finalAmount });
+      const response = await axios.post(`${API_URL}/user/test1`, { amount: finalAmount });
       const { order } = response.data;
 
       const options = {
@@ -58,7 +59,7 @@ const PaymentComponent = () => {
         handler: async (response) => {
           try {
             const verifyRes = await axios.post(
-              'http://localhost:5000/user/test2',
+              `${API_URL}/user/test2`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -70,7 +71,7 @@ const PaymentComponent = () => {
 
             if (verifyRes.status === 200) {
               await axios.post(
-                'http://localhost:5000/user/create-order',
+                `${API_URL}/user/create-order`,
                 {
                   razorpayOrderId: response.razorpay_order_id,
                   products: products.map((p) => ({

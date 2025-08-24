@@ -13,7 +13,7 @@ const app = express();
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://lankagreenovation.onrender.com',
+  'https://lanka-greenovation.onrender.com',
   'https://lankagreenovation.com'
 ];
 
